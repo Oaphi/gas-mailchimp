@@ -45,7 +45,7 @@ const getMembers = ({
             include: ["url", "headers"]
         });
 
-        const requests = [Object.assign({ muteHttpExceptions: true }, params)];
+        const requests = [{ muteHttpExceptions: true, ...params }];
         const [response] = UrlFetchApp.fetchAll(requests);
 
         const responseStatus = FetchApp.isSuccess({ response });
@@ -97,9 +97,9 @@ const hasMember = ({
             include: ["url", "headers"]
         });
 
-        const requests = [Object.assign({
-            muteHttpExceptions: true
-        }, params)];
+        const requests = [{
+            muteHttpExceptions: true, ...params
+        }];
 
         const [response] = UrlFetchApp.fetchAll(requests);
 
@@ -232,9 +232,9 @@ const deleteMember = ({
             include: ["url", "headers", "method"]
         });
 
-        const requests = [Object.assign({
-            muteHttpExceptions: true
-        }, params)];
+        const requests = [{
+            muteHttpExceptions: true, ...params
+        }];
 
         const [response] = UrlFetchApp.fetchAll(requests);
 
