@@ -27,8 +27,8 @@ declare namespace Mailchimp {
 
   interface RequestProcessingParams {
     paramsList: ({ url: string } & object)[];
-    successOn: number[];
-    failureOn: number[];
+    successOn?: number[];
+    failureOn?: number[];
   }
 
   interface CommonListParams extends CommonParams {
