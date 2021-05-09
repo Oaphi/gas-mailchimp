@@ -17,6 +17,10 @@ declare namespace Mailchimp {
   namespace Lists {
     type ListSortDirection = "ASC" | "DESC";
 
+    interface APIResponse {
+      lists?: List[];
+    }
+
     interface CommonListParams extends CommonParams {
       count?: number;
       fields?: {
