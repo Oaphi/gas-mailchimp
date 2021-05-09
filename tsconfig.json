@@ -1,12 +1,14 @@
 {
   "compilerOptions": {
     "removeComments": true,
-    "noEmit": true,
     "checkJs": true,
     "target": "ES2019",
     "lib": ["ESNext"],
     "strict": true,
-    "allowJs": true
+    "allowJs": true,
+    "moduleResolution": "node",
+    "module": "none",
+    "outDir": "src"
   },
   "exclude": ["dist", "node_modules"]
 }
