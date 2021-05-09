@@ -107,6 +107,14 @@ declare namespace Mailchimp {
     }
   }
 
+  namespace Users {
+    interface CommonUserParams extends CommonParams {}
+
+    interface AddUserParams extends CommonUserParams {}
+
+    interface User {}
+  }
+
   /**
    * @summary service wrapping Mailchimp API requests
    */
