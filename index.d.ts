@@ -119,6 +119,15 @@ declare namespace Mailchimp {
     interface User {}
   }
 
+  namespace Webhooks {
+    interface CommonWebhookParams extends CommonParams {
+      listId: string;
+      settings?: MailchimpSettings;
+    }
+
+    interface Webhook {}
+  }
+
   /**
    * @summary service wrapping Mailchimp API requests
    */
