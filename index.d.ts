@@ -73,18 +73,22 @@ declare namespace Mailchimp {
       | "archived"
       | "any";
 
+    interface APIResponse {
+      members?: Member[];
+    }
+
     interface CommonMemberParams extends CommonParams {
       listId: string;
       email?: string;
       status: MemberStatus;
     }
 
-    interface MemberManageParams extends CommonMemberParams {
+    interface AddMemberParams extends CommonMemberParams {
       isVIP?: boolean;
       type?: "html" | "text";
     }
 
-    interface BatchMemberParam extends MemberManageParams {
+    interface BatchMemberParam extends AddMemberParams {
       email: string;
       status: MemberStatus;
     }
@@ -157,7 +161,7 @@ declare namespace Mailchimp {
      * @summary adds a Member to subscribers list
      */
     interface addMember {
-      (params: Mailchimp.Members.MemberManageParams): boolean;
+      (params: Mailchimp.Members.AddMemberParams): boolean;
     }
 
     interface addMembers {
