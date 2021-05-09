@@ -1,0 +1,17 @@
+**/node_modules/**
+
+**/package*
+
+**/docs/**
+
+**/assets/**
+
+**/src/**
+
+**/test/**
+
+*.txt
+*.pem
+*.csv
+*.clasp.json
+*.d.ts

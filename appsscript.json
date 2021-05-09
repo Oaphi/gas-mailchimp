@@ -1,0 +1,18 @@
+{
+  "timeZone": "America/New_York",
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/script.external_request",
+    "https://www.googleapis.com/auth/script.scriptapp"
+  ],
+  "dependencies": {
+    "libraries": [
+      {
+        "libraryId": "1I3BAstRBmAXOylKmAYfAap564_22u8sVgxP6kcRoc522qesT73LACYHf",
+        "userSymbol": "FetchApp",
+        "version": "24"
+      }
+    ]
+  },
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8"
+}

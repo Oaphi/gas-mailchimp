@@ -1,0 +1,142 @@
+declare namespace Mailchimp {
+
+    type MAX_CONNECTIONS = 10;
+    type MIN_COUNT = 10;
+    type MAX_COUNT = 1e3;
+
+    /**
+     * @summary required settings for requesting Mailchimp API
+     */
+    interface MailchimpSettings {
+        api_key: string;
+        domain: string;
+        listName: string;
+        server: string;
+        version: string;
+    }
+
+    namespace Lists {
+        type ListSortDirection = "ASC" | "DESC";
+
+        interface List { }
+    }
+
+    interface CommonParams {
+        settings: MailchimpSettings;
+        onError: function (Error);
+    }
+
+    interface CommonListParams extends CommonParams {
+        count: (number | 10),
+        fields?: {
+            exclude?: string[];
+        },
+        offset: (number | 0),
+        sort: {
+            field: string,
+            direction: Lists.ListSortDirection;
+        };
+        before: string | number | Date;
+        since: string | number | Date;
+    }
+
+    namespace Members {
+        type MemberStatus =
+            | "subscribed"
+            | "unsubscribed"
+            | "cleaned"
+            | "pending"
+            | "transactional"
+            | "archived"
+            | "any";
+
+        interface BatchMemberParam {
+            email: string;
+            status: MemberStatus;
+            isVIP: boolean = false;
+            type: "html" | "text" = "html";
+        }
+
+        interface BatchMemberParams extends CommonParams {
+            members: BatchMemberParam[];
+            listId: string;
+        }
+
+        interface CommonMemberParams extends CommonParams {
+            listId: string;
+            email?: string;
+            status: MemberStatus;
+        }
+
+        interface MemberManageParams extends CommonMemberParams {
+            isVIP: boolean = false;
+            type: "html" | "text" = "html";
+        }
+
+        interface MemberDeleteParams extends CommonMemberParams {
+            permanent?: boolean = false;
+        }
+
+        interface MemberListParams extends CommonListParams, CommonMemberParams {
+
+        }
+
+        interface Member {
+            id: string;
+            email_address: string;
+            email_client: string;
+            status: MemberStatus;
+            timestamp_signup: string;
+        }
+    }
+
+    /**
+     * @summary service wrapping Mailchimp API requests
+     */
+    namespace MailchimpApp {
+        /**
+         * @summary gets Mailchimp API settings
+         */
+        interface getSettings {
+            (): MailchimpSettings;
+        }
+
+        /**
+         * @summary updates Mailchimp API settings
+         */
+        interface setSettings {
+            (settings: MailchimpSettings): boolean;
+        }
+
+        /**
+         * @summary lists Members from a list
+         */
+        interface getMembers {
+            (params: Mailchimp.Members.MemberListParams): Mailchimp.Members.Member[];
+        }
+
+        /**
+         * @summary adds a Member to subscribers list
+         */
+        interface addMember {
+            (params: Mailchimp.Members.MemberManageParams): boolean;
+        }
+
+        interface addMembers {
+            (params: Mailchimp.Members.BatchMemberParams): boolean;
+        }
+    }
+
+    interface MailchimpApp {
+        MAX_CONNECTIONS : MAX_CONNECTIONS;
+        MIN_COUNT : MIN_COUNT;
+        MAX_COUNT : MAX_COUNT;
+        addMember: MailchimpApp.addMember;
+        addMembers: MailchimpApp.addMembers;
+        getMembers: MailchimpApp.getMembers;
+        getSettings: MailchimpApp.getSettings;
+        setSettings: MailchimpApp.setSettings;
+    }
+}
+
+declare const MailchimpApp: Mailchimp.MailchimpApp;
