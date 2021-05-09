@@ -6,7 +6,7 @@
   "scripts": {
     "test": "mocha",
     "push": "npm run build && clasp push --force",
-    "build": "babel src --out-file dist/dist.js",
+    "build": "tsc",
     "version": "npm run push && clasp deploy"
   },
   "repository": {
@@ -24,13 +24,10 @@
   },
   "homepage": "https://github.com/Oaphi/gas-mailchimp#readme",
   "devDependencies": {
-    "@babel/cli": "^7.10.5",
-    "@babel/core": "^7.11.4",
-    "@google/clasp": "^2.3.0",
-    "@types/google-apps-script": "^1.0.14",
-    "chai": "^4.2.0",
+    "@types/google-apps-script": "^1.0.32",
+    "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
-    "jshint": "^2.12.0",
-    "mocha": "^8.1.2"
+    "mocha": "^8.4.0",
+    "typescript": "^3.9.9"
   }
 }

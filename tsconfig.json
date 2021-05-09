@@ -1,14 +1,16 @@
 {
   "compilerOptions": {
     "removeComments": true,
+    "noEmitOnError": true,
     "checkJs": true,
     "target": "ES2019",
+    "types": ["google-apps-script"],
     "lib": ["ESNext"],
     "strict": true,
     "allowJs": true,
     "moduleResolution": "node",
     "module": "none",
-    "outDir": "src"
+    "outDir": "dist"
   },
   "exclude": ["dist", "node_modules"]
 }
