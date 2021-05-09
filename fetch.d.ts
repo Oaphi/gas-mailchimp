@@ -82,12 +82,17 @@ declare namespace Fetch {
     union?(tgt: object, ...src: object[]): object;
   }
 
-  interface extractJSON {
-    (config: {
-      response: GoogleAppsScript.URL_Fetch.HTTPResponse;
-      onError: (err: Error) => any;
-    }): object;
-  }
+  type CommonOptions = {
+    onError?: (err: Error) => any;
+  };
+
+  type extractJSONOptions = CommonOptions & {
+    response: GoogleAppsScript.URL_Fetch.HTTPResponse;
+  };
+
+  type extractJSON<T extends object = object> = (
+    config: extractJSONOptions
+  ) => T;
 
   interface getConfig {
     (settings: FetchSettings): FetchConfigurer;
@@ -96,9 +101,9 @@ declare namespace Fetch {
   interface isSuccess {
     (settings: {
       response: GoogleAppsScript.URL_Fetch.HTTPResponse;
-      failureOn: number[];
-      successOn: number[];
-      onFailure: (code: number, content: string) => any;
+      failureOn?: number[];
+      successOn?: number[];
+      onFailure?: (code: number, content: string) => any;
     }): boolean;
   }
 
