@@ -1,27 +1,9 @@
 /**
- * 
- * @param {{
- *  after : (Date|undefined),
- *  before : (Date|undefined),
- *  email : (string|undefined),
- *  name : string,
- *  settings : MailchimpSettings
- * } | CommonListParams} 
- * 
- * @typedef {{
- *  has_welcome : boolean,
- *  id : string,
- *  list_rating : number,
- *  name : string,
- *  notify_on_unsubscribe : string
- * }} List
- * 
- * @returns {List[]}
+ * @summary Gets subscriber Lists
+ * @param {Mailchimp.Lists.GetListsParams} options
+ * @return {Mailchimp.Lists.List[]}
  */
-var getLists = ({
-
-    after,
-    before,
+const getLists = ({
     count = 10,
     email,
     fields = {
@@ -35,12 +17,13 @@ var getLists = ({
         direction: "DESC"
     },
     onError = console.warn
-} = {}) => {
+}) => {
 
     try {
 
         const { api_key, domain, server, version } = validateMailchimpSettings(settings);
 
+        /** @type {object & { email?:string }} */
         const query = validateMailchimpQuery("lists", { count, offset, sort, fields });
 
         email && (query.email = email);
@@ -60,24 +43,19 @@ var getLists = ({
             include: ["url", "headers"]
         });
 
-        const requests = [Object.assign({ muteHttpExceptions: true }, params)];
+        const requests = [{ muteHttpExceptions: true, ...params }];
 
         const [response] = UrlFetchApp.fetchAll(requests);
 
         const status = FetchApp.isSuccess({ response });
 
-        if (!status) { return []; }
+        if (!status) return [];
 
-        /** @type {{ lists : List[] }} */
+        /** @type {{ lists : Mailchimp.Lists.List[] }} */
+        //@ts-expect-error
         const { lists = [] } = FetchApp.extractJSON({ response });
 
-        const filtered = lists.filter(({ name: listName }) => {
-            const nameValid = name ? listName === name : true;
-
-            return nameValid;
-        });
-
-        return filtered;
+        return lists.filter(({ name: listName }) => name ? listName === name : true);
 
     } catch (error) {
         onError(error);

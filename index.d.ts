@@ -17,7 +17,35 @@ declare namespace Mailchimp {
   namespace Lists {
     type ListSortDirection = "ASC" | "DESC";
 
-    interface List {}
+    interface CommonListParams extends CommonParams {
+      count?: number;
+      fields?: {
+        exclude: string[];
+      };
+      offset?: number;
+      sort?: {
+        field: string;
+        direction: Lists.ListSortDirection;
+      };
+      before?: string | number | Date;
+      since?: string | number | Date;
+    }
+
+    interface GetListsParams extends CommonListParams {
+      after?: Date;
+      before?: Date;
+      email?: string;
+      name: string;
+      settings: MailchimpSettings;
+    }
+
+    interface List {
+      has_welcome: boolean;
+      id: string;
+      list_rating: number;
+      name: string;
+      notify_on_unsubscribe: string;
+    }
   }
 
   interface CommonParams {
@@ -29,20 +57,6 @@ declare namespace Mailchimp {
     paramsList: ({ url: string } & object)[];
     successOn?: number[];
     failureOn?: number[];
-  }
-
-  interface CommonListParams extends CommonParams {
-    count?: number;
-    fields?: {
-      exclude: string[];
-    };
-    offset?: number;
-    sort?: {
-      field: string;
-      direction: Lists.ListSortDirection;
-    };
-    before?: string | number | Date;
-    since?: string | number | Date;
   }
 
   namespace Members {
@@ -80,7 +94,9 @@ declare namespace Mailchimp {
       permanent?: boolean;
     }
 
-    interface MemberListParams extends CommonListParams, CommonMemberParams {}
+    interface MemberListParams
+      extends Lists.CommonListParams,
+        CommonMemberParams {}
 
     interface Member {
       id: string;
