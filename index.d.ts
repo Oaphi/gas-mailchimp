@@ -21,22 +21,22 @@ declare namespace Mailchimp {
   }
 
   interface CommonParams {
-    settings: MailchimpSettings;
-    onError: (err: Error) => void;
+    settings?: MailchimpSettings;
+    onError?: (err: Error) => void;
   }
 
   interface CommonListParams extends CommonParams {
-    count: number | 10;
+    count?: number;
     fields?: {
-      exclude?: string[];
+      exclude: string[];
     };
-    offset: number | 0;
-    sort: {
+    offset?: number;
+    sort?: {
       field: string;
       direction: Lists.ListSortDirection;
     };
-    before: string | number | Date;
-    since: string | number | Date;
+    before?: string | number | Date;
+    since?: string | number | Date;
   }
 
   namespace Members {
