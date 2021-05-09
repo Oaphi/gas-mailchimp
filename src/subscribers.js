@@ -1,9 +1,9 @@
 /**
  * @summary gets a list of members from subscriber list
- * @param {Mailchimp.Members.MemberListParams}
- * @returns {Mailchimp.Members.Member[]} 
+ * @param {Mailchimp.Members.MemberListParams} options
+ * @return {Mailchimp.Members.Member[]}
  */
-var getMembers = ({
+const getMembers = ({
     count = 10,
     fields = {
         exclude: []
@@ -18,18 +18,16 @@ var getMembers = ({
     since,
     status = "any",
     onError = console.warn
-} = {}) => {
+}) => {
 
     try {
 
-        if (!listId) {
-            throw new Error(CONFIG.errors.members.unknownList);
-        }
+        if (!listId) throw new Error(CONFIG.errors.members.unknownList);
 
         const { api_key, domain, server, version } = validateMailchimpSettings(settings);
 
-        const query = validateMailchimpQuery("members", { 
-            count, fields, offset, status, sort, since 
+        const query = validateMailchimpQuery("members", {
+            count, fields, offset, status, sort, since
         });
 
         const config = FetchApp.getConfig({
@@ -53,7 +51,8 @@ var getMembers = ({
         const responseStatus = FetchApp.isSuccess({ response });
         if (!responseStatus) { return []; }
 
-        /** @type {{ members: Member[] }} */
+        /** @type {{ members: Mailchimp.Members.Member[] }} */
+        //@ts-expect-error
         const { members = [] } = FetchApp.extractJSON({ response });
 
         return members;
@@ -67,25 +66,20 @@ var getMembers = ({
 
 /**
  * @summary checks if a Member is in subscribers list
- * @param {Mailchimp.Members.CommonMemberParams} 
- * @returns {boolean}
+ * @param {Mailchimp.Members.CommonMemberParams} options
+ * @return {boolean}
  */
-var hasMember = ({
+const hasMember = ({
     email,
     listId,
     settings = getSettings(),
     onError = console.warn
-} = {}) => {
+}) => {
 
     try {
 
-        if (!listId) {
-            throw new Error(CONFIG.errors.members.unknownList);
-        }
-
-        if (!email) {
-            throw new Error(CONFIG.errors.members.unknownEmail);
-        }
+        if (!listId) throw new Error(CONFIG.errors.members.unknownList);
+        if (!email) throw new Error(CONFIG.errors.members.unknownEmail);
 
         const { api_key, domain, server, version } = validateMailchimpSettings(settings);
 
@@ -119,9 +113,10 @@ var hasMember = ({
 };
 
 /**
+ * @summary Adds a Member to subscriber list
  * @type {Mailchimp.MailchimpApp.addMember}
  */
-var addMember = ({
+const addMember = ({
     type = "html",
     email,
     isVIP = false,
@@ -169,13 +164,14 @@ var addMember = ({
 };
 
 /**
+ * @summary Batch adds members to subscriber list
  * @type {Mailchimp.MailchimpApp.addMembers}
  */
-var addMembers = ({ 
-    listId, 
-    members, 
-    onError = console.warn, 
-    settings 
+const addMembers = ({
+    listId,
+    members,
+    onError = console.warn,
+    settings
 }) => {
 
     try {
@@ -185,13 +181,8 @@ var addMembers = ({
         /** @type {Mailchimp.Members.BatchMemberParam[][]} */
         const paramChunks = chunkify(members, { size: concurrent });
 
-        paramChunks.forEach(chunk => {
-            chunk.forEach((param) => {
-                addMember(
-                    Object.assign(param, { settings, onError, listId })
-                );
-            });
-        });
+        //TODO: check if we can use batch endpoints
+        return paramChunks.every(chunk => chunk.every((param) => addMember({ ...param, settings, onError, listId })));
 
     } catch (error) {
         onError(error);
@@ -202,22 +193,20 @@ var addMembers = ({
 
 /**
  * @summary deletes a Member from subscribers list
- * @param {Mailchimp.Members.MemberDeleteParams}
- * @returns {boolean} 
+ * @param {Mailchimp.Members.MemberDeleteParams} options
+ * @return {boolean}
  */
-var deleteMember = ({
+const deleteMember = ({
     email,
     listId,
     permanent = false,
     settings = getSettings(),
     onError = console.warn
-} = {}) => {
+}) => {
 
     try {
 
-        if (!email) {
-            throw new Error(CONFIG.errors.members.unknownEmail);
-        }
+        if (!email) throw new Error(CONFIG.errors.members.unknownEmail);
 
         const { api_key, domain, server, version } = validateMailchimpSettings(settings);
 
@@ -242,8 +231,6 @@ var deleteMember = ({
         }, {
             include: ["url", "headers", "method"]
         });
-
-        console.log(params);
 
         const requests = [Object.assign({
             muteHttpExceptions: true
