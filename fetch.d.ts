@@ -49,6 +49,7 @@ declare namespace Fetch {
   interface FetchConfigurer {
     readonly base: string;
     readonly domain: string;
+    readonly headers: Record<string, string>;
     readonly path: string;
     readonly paths: string[];
     readonly search: string;
