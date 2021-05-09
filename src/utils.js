@@ -1,13 +1,15 @@
 /**
  * @summary makes a union of object
- * @param {object} target 
- * @param  {...object} sources 
+ * @param {object} target
+ * @param  {...{ [x:string]: unknown }} sources
  * @returns {object}
  */
 const union = (target, ...sources) => {
 
-    const union = Object.assign({}, target);
+    /** @type {{ [x:string]: any }} */
+    const union = { ...target };
 
+    /** @type {{ [x:string]: number }} */
     const assignedKeys = {};
 
     for (const source of sources) {
@@ -22,15 +24,21 @@ const union = (target, ...sources) => {
     return union;
 };
 
+/**
+ * @summary performs a deep copy of an object
+ * @param {{ skip ?: string[], source ?: object }} options
+ * @returns {object}
+ */
 const deepCopy = ({ source = {}, skip = [] }) => {
 
+    /** @type {{ [x:string]: unknown } | Array<unknown>} */
     const output = Array.isArray(source) ? [] : {};
 
     Object.entries(source).forEach(([key, val]) => {
-
-        if (skip.includes(key)) { return; }
+        if (skip.includes(key)) return;
 
         const isObj = typeof val === "object" && val;
+        //@ts-expect-error
         output[key] = isObj ? deepCopy({ source: val, skip }) : val;
     });
 
@@ -39,7 +47,7 @@ const deepCopy = ({ source = {}, skip = [] }) => {
 
 /**
  * @summary converts a date-like value to ISO 8601 timestamp
- * @param {number|string|Date} [date] 
+ * @param {number|string|Date} [date]
  * @returns {string}
  */
 const toISO8601Timestamp = (date = Date.now()) => {
@@ -49,7 +57,7 @@ const toISO8601Timestamp = (date = Date.now()) => {
 
     const hours = parsed.getTimezoneOffset() / MIN_IN_HOUR;
 
-    const fraction = (hours - Number.parseInt(hours)) * MIN_IN_HOUR;
+    const fraction = (hours - Math.trunc(hours)) * MIN_IN_HOUR;
 
     const sign = hours < 0 ? "-" : "+";
 
@@ -61,20 +69,20 @@ const toISO8601Timestamp = (date = Date.now()) => {
 
 /**
  * @summary validates query parameters for the API
- * 
- * @param {("lists"|"members")} type 
- * @param {{ 
- *  count? : number, 
- *  fields : { exclude : string[] }, 
+ *
+ * @param {("lists"|"members")} type
+ * @param {{
+ *  count? : number,
+ *  fields? : { exclude : string[] },
  *  offset? : number,
  *  since? : number | string | Date,
- *  sort?,
+ *  sort?: { field: string, direction: "ASC"|"DESC" },
  *  status? : Mailchimp.Members.MemberStatus
- * }} query 
- * 
+ * }} query
+ *
  * @returns {object}
  */
-const validateMailchimpQuery = (type, query = {}) => {
+const validateMailchimpQuery = (type, query) => {
 
     const { count, fields, since, sort, status } = query;
 
@@ -85,10 +93,11 @@ const validateMailchimpQuery = (type, query = {}) => {
     }
 
     if (sort !== undefined) {
-        const { sort: { field, direction } } = query;
+        const { sort: { field, direction = "DESC" } = {} } = query;
 
         const directions = ["ASC", "DESC"];
 
+        /** @type {Map<"members"|"lists", { [x:string] : string | undefined }>} */
         const fields = new Map([
             ["members", {
                 opted: "timestamp_opt",
@@ -106,7 +115,7 @@ const validateMailchimpQuery = (type, query = {}) => {
 
         const fieldMap = fields.get(type);
 
-        validated.sort_field = fieldMap[field] || Object.values(fieldMap)[0];
+        if (fieldMap && field) validated.sort_field = fieldMap[field] || Object.values(fieldMap)[0];
     }
 
     if (status !== undefined && status !== "any") {
@@ -123,14 +132,13 @@ const validateMailchimpQuery = (type, query = {}) => {
     }
 
     if (fields !== undefined) {
-        const { fields: { exclude = [] } } = query;
-
+        const { fields: { exclude = [] } = {} } = query;
         validated.exclude_fields = exclude.map(ex => `${type}.${ex}`);
     }
 
-    const queryCopy = deepCopy({ 
-        source: query, 
-        skip: ["fields", "sort", "status"] 
+    const queryCopy = deepCopy({
+        source: query,
+        skip: ["fields", "sort", "status"]
     });
 
     return Object.assign({}, queryCopy, validated);
@@ -138,7 +146,7 @@ const validateMailchimpQuery = (type, query = {}) => {
 
 /**
  * @summary converts to hash accepted by Mailchimpt API
- * @param {string} email 
+ * @param {string} email
  * @returns {string}
  */
 const toMD5lowercase = (email) => {
@@ -153,13 +161,11 @@ const toMD5lowercase = (email) => {
 };
 
 /**
- * @typedef {object} ChunkifyConfig
- * @property {number} [size]
- * @property {number[]} [limits]
- * 
+ * @typedef {{ size?: number, limits ?: number[] }} ChunkifyConfig
+ *
  * @summary splits an array into chunks
- * @param {any[]} source 
- * @param {ChunkifyConfig}
+ * @param {any[]} source
+ * @param {ChunkifyConfig} options
  * @returns {any[][]}
  */
 const chunkify = (source, { limits = [], size } = {}) => {
@@ -184,9 +190,7 @@ const chunkify = (source, { limits = [], size } = {}) => {
 
     const { length } = limits;
 
-    if (!length) {
-        return [Object.assign([], source)];
-    }
+    if (!length) return [[...source]];
 
     let lastSlicedElem = 0;
 
@@ -202,6 +206,11 @@ const chunkify = (source, { limits = [], size } = {}) => {
     return output;
 };
 
+/**
+ * @summary Fetches the API and handles the response
+ * @param {Mailchimp.RequestProcessingParams} options
+ * @return {boolean}
+ */
 const processRequests = ({ paramsList, successOn, failureOn }) => {
 
     const commonParams = { muteHttpExceptions: true };
