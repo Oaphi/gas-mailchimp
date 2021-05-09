@@ -12,5 +12,5 @@
     "module": "none",
     "outDir": "dist"
   },
-  "exclude": ["dist", "node_modules"]
+  "exclude": ["dist", "node_modules", "tests"]
 }

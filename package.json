@@ -1,8 +1,8 @@
 {
   "name": "gas-mailchimp",
-  "version": "0.0.1",
-  "description": "Mailchimp API utilities",
-  "main": "index.js",
+  "version": "0.1.0",
+  "description": "Apps Script Mailchimp API client library",
+  "main": "dist/dist.js",
   "scripts": {
     "test": "mocha",
     "push": "npm run build && clasp push --force",
@@ -15,7 +15,9 @@
   },
   "keywords": [
     "mailchimp",
-    "appsscript"
+    "mailchimp-api",
+    "client-library",
+    "google-apps-script"
   ],
   "author": "Oleg Valter",
   "license": "MIT",
