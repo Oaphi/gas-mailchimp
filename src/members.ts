@@ -22,9 +22,8 @@ const getMembers = ({
   try {
     if (!listId) throw new Error(CONFIG.errors.members.unknownList);
 
-    const { api_key, domain, server, version } = validateMailchimpSettings(
-      settings
-    );
+    const { api_key, domain, server, version } =
+      validateMailchimpSettings(settings);
 
     const query = validateMailchimpQuery("members", {
       count,
@@ -60,11 +59,10 @@ const getMembers = ({
 
     if (!responseStatus) return [];
 
-    const {
-      members = [],
-    }: Mailchimp.Members.APIResponse = FetchApp.extractJSON({
-      response,
-    });
+    const { members = [] }: Mailchimp.Members.APIResponse =
+      FetchApp.extractJSON({
+        response,
+      });
 
     return members;
   } catch (error) {
@@ -88,9 +86,8 @@ const hasMember = ({
     if (!listId) throw new Error(CONFIG.errors.members.unknownList);
     if (!email) throw new Error(CONFIG.errors.members.unknownEmail);
 
-    const { api_key, domain, server, version } = validateMailchimpSettings(
-      settings
-    );
+    const { api_key, domain, server, version } =
+      validateMailchimpSettings(settings);
 
     const config = FetchApp.getConfig({
       domain,
@@ -130,7 +127,7 @@ const hasMember = ({
  * @param {Mailchimp.Members.AddMemberParams} options
  * @return {boolean}
  */
-const addMember: Mailchimp.MailchimpApp.addMember = ({
+const addMember: Mailchimp.MailchimpApp["addMember"] = ({
   type = "html",
   email,
   isVIP = false,
@@ -140,9 +137,8 @@ const addMember: Mailchimp.MailchimpApp.addMember = ({
   onError = console.warn,
 }) => {
   try {
-    const { api_key, domain, server, version } = validateMailchimpSettings(
-      settings
-    );
+    const { api_key, domain, server, version } =
+      validateMailchimpSettings(settings);
 
     const payload = {
       email_address: email,
@@ -184,7 +180,7 @@ const addMember: Mailchimp.MailchimpApp.addMember = ({
  * @param {Mailchimp.Members.AddMemberParams} options
  * @return {boolean}
  */
-const addMembers: Mailchimp.MailchimpApp.addMembers = ({
+const addMembers: Mailchimp.MailchimpApp["addMembers"] = ({
   listId,
   members,
   onError = console.warn,
@@ -227,9 +223,8 @@ const deleteMember = ({
   try {
     if (!email) throw new Error(CONFIG.errors.members.unknownEmail);
 
-    const { api_key, domain, server, version } = validateMailchimpSettings(
-      settings
-    );
+    const { api_key, domain, server, version } =
+      validateMailchimpSettings(settings);
 
     const hash = toMD5lowercase(email);
 

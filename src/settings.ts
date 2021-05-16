@@ -2,7 +2,7 @@
  * @summary gets Mailchimp settings from user properties
  * @return {Mailchimp.MailchimpSettings}
  */
-const getSettings: Mailchimp.MailchimpApp.getSettings = () => {
+const getSettings: Mailchimp.MailchimpApp["getSettings"] = () => {
   const defaults = {
     version: CONFIG.version,
     domain: CONFIG.domain,
@@ -30,7 +30,7 @@ const getSettings: Mailchimp.MailchimpApp.getSettings = () => {
  * @param {Partial<Mailchimp.MailchimpSettings>} options
  * @return {boolean}
  */
-const setSettings: Mailchimp.MailchimpApp.setSettings = (
+const setSettings: Mailchimp.MailchimpApp["setSettings"] = (
   settings: Partial<Mailchimp.MailchimpSettings>
 ) => {
   try {

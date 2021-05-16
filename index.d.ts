@@ -131,52 +131,16 @@ declare namespace Mailchimp {
     interface Webhook {}
   }
 
-  /**
-   * @summary service wrapping Mailchimp API requests
-   */
-  namespace MailchimpApp {
-    /**
-     * @summary gets Mailchimp API settings
-     */
-    interface getSettings {
-      (): MailchimpSettings;
-    }
-
-    /**
-     * @summary updates Mailchimp API settings
-     */
-    interface setSettings {
-      (settings: Partial<MailchimpSettings>): boolean;
-    }
-
-    /**
-     * @summary lists Members from a list
-     */
-    interface getMembers {
-      (params: Mailchimp.Members.MemberListParams): Mailchimp.Members.Member[];
-    }
-
-    /**
-     * @summary adds a Member to subscribers list
-     */
-    interface addMember {
-      (params: Mailchimp.Members.AddMemberParams): boolean;
-    }
-
-    interface addMembers {
-      (params: Mailchimp.Members.BatchMemberParams): boolean;
-    }
-  }
-
   interface MailchimpApp {
     MAX_CONNECTIONS: MAX_CONNECTIONS;
     MIN_COUNT: MIN_COUNT;
     MAX_COUNT: MAX_COUNT;
-    addMember: MailchimpApp.addMember;
-    addMembers: MailchimpApp.addMembers;
-    getMembers: MailchimpApp.getMembers;
-    getSettings: MailchimpApp.getSettings;
-    setSettings: MailchimpApp.setSettings;
+    addMember(params: Members.AddMemberParams): boolean;
+    addMembers(params: Members.BatchMemberParams): boolean;
+    deleteMember(params: Members.MemberDeleteParams): boolean;
+    getMembers(params: Members.MemberListParams): Members.Member[];
+    getSettings(): MailchimpSettings;
+    setSettings(settings: Partial<MailchimpSettings>): boolean;
   }
 }
 
