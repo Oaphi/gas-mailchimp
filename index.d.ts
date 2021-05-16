@@ -80,7 +80,7 @@ declare namespace Mailchimp {
     interface CommonMemberParams extends CommonParams {
       listId: string;
       email?: string;
-      status: MemberStatus;
+      status?: MemberStatus;
     }
 
     interface AddMemberParams extends CommonMemberParams {
@@ -90,7 +90,6 @@ declare namespace Mailchimp {
 
     interface BatchMemberParam extends AddMemberParams {
       email: string;
-      status: MemberStatus;
     }
 
     interface BatchMemberParams extends CommonParams {
