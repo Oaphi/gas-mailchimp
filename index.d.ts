@@ -146,7 +146,7 @@ declare namespace Mailchimp {
      * @summary updates Mailchimp API settings
      */
     interface setSettings {
-      (settings: MailchimpSettings): boolean;
+      (settings: Partial<MailchimpSettings>): boolean;
     }
 
     /**

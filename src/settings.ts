@@ -1,6 +1,6 @@
 /**
  * @summary gets Mailchimp settings from user properties
- * @return {Mailchimp.MailchimpApp.getSettings}
+ * @return {Mailchimp.MailchimpSettings}
  */
 const getSettings: Mailchimp.MailchimpApp.getSettings = () => {
   const defaults = {
@@ -27,16 +27,23 @@ const getSettings: Mailchimp.MailchimpApp.getSettings = () => {
 
 /**
  * @summary sets Mailchimp settings to user properties
- * @param {Mailchimp.MailchimpApp.setSettings} options
+ * @param {Partial<Mailchimp.MailchimpSettings>} options
  * @return {boolean}
  */
-const setSettings: Mailchimp.MailchimpApp.setSettings = (settings) => {
+const setSettings: Mailchimp.MailchimpApp.setSettings = (
+  settings: Partial<Mailchimp.MailchimpSettings>
+) => {
   try {
     const { property } = CONFIG;
 
     const store = PropertiesService.getUserProperties();
 
-    store.setProperty(property, JSON.stringify(settings));
+    const oldSettings = getSettings();
+
+    store.setProperty(
+      property,
+      JSON.stringify({ ...oldSettings, ...settings })
+    );
 
     return true;
   } catch (error) {
