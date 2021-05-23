@@ -138,6 +138,7 @@ declare namespace Mailchimp {
     addMember(params: Members.AddMemberParams): boolean;
     addMembers(params: Members.BatchMemberParams): boolean;
     deleteMember(params: Members.MemberDeleteParams): boolean;
+    getLists(params: Lists.GetListsParams): Lists.List[];
     getMembers(params: Members.MemberListParams): Members.Member[];
     getSettings(): MailchimpSettings;
     setSettings(settings: Partial<MailchimpSettings>): boolean;

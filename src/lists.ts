@@ -3,7 +3,7 @@
  * @param {Mailchimp.Lists.GetListsParams} options
  * @return {Mailchimp.Lists.List[]}
  */
-const getLists = ({
+const getLists: Mailchimp.MailchimpApp["getLists"] = ({
   count = 10,
   email,
   fields = {
@@ -17,11 +17,10 @@ const getLists = ({
     direction: "DESC",
   },
   onError = console.warn,
-}: Mailchimp.Lists.GetListsParams): Mailchimp.Lists.List[] => {
+}) => {
   try {
-    const { api_key, domain, server, version } = validateMailchimpSettings(
-      settings
-    );
+    const { api_key, domain, server, version } =
+      validateMailchimpSettings(settings);
 
     const query: object & { email?: string } = validateMailchimpQuery("lists", {
       count,
