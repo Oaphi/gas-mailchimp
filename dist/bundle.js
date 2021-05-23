@@ -78,47 +78,6 @@ const getLists = ({ count = 10, email, fields = {
         return [];
     }
 };
-const getSettings = () => {
-    const defaults = {
-        version: CONFIG.version,
-        domain: CONFIG.domain,
-        api_key: "",
-        listName: "",
-        server: "",
-    };
-    try {
-        const { property } = CONFIG;
-        const store = PropertiesService.getUserProperties();
-        const settings = JSON.parse(store.getProperty(property) || "{}");
-        return { ...defaults, ...settings };
-    }
-    catch (error) {
-        console.warn(error);
-        return defaults;
-    }
-};
-const setSettings = (settings) => {
-    try {
-        const { property } = CONFIG;
-        const store = PropertiesService.getUserProperties();
-        const oldSettings = getSettings();
-        store.setProperty(property, JSON.stringify({ ...oldSettings, ...settings }));
-        return true;
-    }
-    catch (error) {
-        console.warn(error);
-        return false;
-    }
-};
-const validateMailchimpSettings = (settings) => {
-    const { errors: { settings: settingsErrors }, version: defaultVersion, } = CONFIG;
-    const { api_key, server, version = defaultVersion } = settings;
-    if (!api_key)
-        throw new Error(settingsErrors.api_key);
-    if (!server)
-        throw new Error(settingsErrors.server);
-    return Object.assign(settings, { version });
-};
 const getMembers = ({ count = 10, fields = {
     exclude: [],
 }, listId, offset = 0, settings = getSettings(), sort = {
@@ -154,7 +113,7 @@ const getMembers = ({ count = 10, fields = {
         const responseStatus = FetchApp.isSuccess({ response });
         if (!responseStatus)
             return [];
-        const { members = [], } = FetchApp.extractJSON({
+        const { members = [] } = FetchApp.extractJSON({
             response,
         });
         return members;
@@ -276,6 +235,47 @@ const deleteMember = ({ email, listId, permanent = false, settings = getSettings
         onError(error);
         return false;
     }
+};
+const getSettings = () => {
+    const defaults = {
+        version: CONFIG.version,
+        domain: CONFIG.domain,
+        api_key: "",
+        listName: "",
+        server: "",
+    };
+    try {
+        const { property } = CONFIG;
+        const store = PropertiesService.getUserProperties();
+        const settings = JSON.parse(store.getProperty(property) || "{}");
+        return { ...defaults, ...settings };
+    }
+    catch (error) {
+        console.warn(error);
+        return defaults;
+    }
+};
+const setSettings = (settings) => {
+    try {
+        const { property } = CONFIG;
+        const store = PropertiesService.getUserProperties();
+        const oldSettings = getSettings();
+        store.setProperty(property, JSON.stringify({ ...oldSettings, ...settings }));
+        return true;
+    }
+    catch (error) {
+        console.warn(error);
+        return false;
+    }
+};
+const validateMailchimpSettings = (settings) => {
+    const { errors: { settings: settingsErrors }, version: defaultVersion, } = CONFIG;
+    const { api_key, server, version = defaultVersion } = settings;
+    if (!api_key)
+        throw new Error(settingsErrors.api_key);
+    if (!server)
+        throw new Error(settingsErrors.server);
+    return Object.assign(settings, { version });
 };
 const addUser = ({ settings = getSettings(), }) => {
     try {
