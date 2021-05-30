@@ -236,6 +236,13 @@ const deleteMember = ({ email, listId, permanent = false, settings = getSettings
         return false;
     }
 };
+const getDefaults = () => ({
+    version: CONFIG.version,
+    domain: CONFIG.domain,
+    api_key: "",
+    listName: "",
+    server: "",
+});
 const getSettings = () => {
     const defaults = {
         version: CONFIG.version,
