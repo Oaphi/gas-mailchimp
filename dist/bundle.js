@@ -1,5 +1,5 @@
 "use strict";
-const CONFIG = {
+var CONFIG = {
     domain: "mailchimp.com",
     version: "3.0",
     property: "mailchimp_settings",
@@ -36,86 +36,102 @@ Object.defineProperty(this, "MAX_COUNT", {
     writable: false,
     value: CONFIG.limits.lists.members
 });
-const getLists = ({ count = 10, email, fields = {
-    exclude: [],
-}, name, offset = 0, settings = getSettings(), sort = {
-    field: "created",
-    direction: "DESC",
-}, onError = console.warn, }) => {
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var getLists = function (_a) {
+    var _b = _a.count, count = _b === void 0 ? 10 : _b, email = _a.email, _c = _a.fields, fields = _c === void 0 ? {
+        exclude: [],
+    } : _c, name = _a.name, _d = _a.offset, offset = _d === void 0 ? 0 : _d, _e = _a.settings, settings = _e === void 0 ? getSettings() : _e, _f = _a.sort, sort = _f === void 0 ? {
+        field: "created",
+        direction: "DESC",
+    } : _f, _g = _a.onError, onError = _g === void 0 ? console.warn : _g;
     try {
-        const { api_key, domain, server, version } = validateMailchimpSettings(settings);
-        const query = validateMailchimpQuery("lists", {
-            count,
-            offset,
-            sort,
-            fields,
+        var _h = validateMailchimpSettings(settings), api_key = _h.api_key, domain = _h.domain, server = _h.server, version = _h.version;
+        var query = validateMailchimpQuery("lists", {
+            count: count,
+            offset: offset,
+            sort: sort,
+            fields: fields,
         });
         email && (query.email = email);
-        const config = FetchApp.getConfig({
-            domain,
+        var config = FetchApp.getConfig({
+            domain: domain,
             paths: [version, "lists"],
             subdomains: [server, "api"],
-            query,
+            query: query,
         });
-        config.addHeader("Authorization", `Basic ${api_key}`);
-        const params = config.json({
+        config.addHeader("Authorization", "Basic " + api_key);
+        var params = config.json({
             redirect: "followRedirects",
         }, {
             include: ["url", "headers"],
         });
-        const requests = [{ muteHttpExceptions: true, ...params }];
-        const [response] = UrlFetchApp.fetchAll(requests);
-        const status = FetchApp.isSuccess({ response });
+        var requests = [__assign({ muteHttpExceptions: true }, params)];
+        var response = UrlFetchApp.fetchAll(requests)[0];
+        var status = FetchApp.isSuccess({ response: response });
         if (!status)
             return [];
-        const { lists = [] } = FetchApp.extractJSON({
-            response,
+        var _j = FetchApp.extractJSON({
+            response: response,
+        }).lists, lists = _j === void 0 ? [] : _j;
+        return lists.filter(function (_a) {
+            var listName = _a.name;
+            return name ? listName === name : true;
         });
-        return lists.filter(({ name: listName }) => name ? listName === name : true);
     }
     catch (error) {
         onError(error);
         return [];
     }
 };
-const getMembers = ({ count = 10, fields = {
-    exclude: [],
-}, listId, offset = 0, settings = getSettings(), sort = {
-    field: "created",
-    direction: "DESC",
-}, since, status = "any", onError = console.warn, }) => {
+var getMembers = function (_a) {
+    var _b = _a.count, count = _b === void 0 ? 10 : _b, _c = _a.fields, fields = _c === void 0 ? {
+        exclude: [],
+    } : _c, listId = _a.listId, _d = _a.offset, offset = _d === void 0 ? 0 : _d, _e = _a.settings, settings = _e === void 0 ? getSettings() : _e, _f = _a.sort, sort = _f === void 0 ? {
+        field: "created",
+        direction: "DESC",
+    } : _f, since = _a.since, _g = _a.status, status = _g === void 0 ? "any" : _g, _h = _a.onError, onError = _h === void 0 ? console.warn : _h;
     try {
         if (!listId)
             throw new Error(CONFIG.errors.members.unknownList);
-        const { api_key, domain, server, version } = validateMailchimpSettings(settings);
-        const query = validateMailchimpQuery("members", {
-            count,
-            fields,
-            offset,
-            status,
-            sort,
-            since,
+        var _j = validateMailchimpSettings(settings), api_key = _j.api_key, domain = _j.domain, server = _j.server, version = _j.version;
+        var query = validateMailchimpQuery("members", {
+            count: count,
+            fields: fields,
+            offset: offset,
+            status: status,
+            sort: sort,
+            since: since,
         });
-        const config = FetchApp.getConfig({
-            domain,
+        var config = FetchApp.getConfig({
+            domain: domain,
             paths: [version, "lists", listId, "members"],
             subdomains: [server, "api"],
-            query,
+            query: query,
         });
-        config.addHeader("Authorization", `Basic ${api_key}`);
-        const params = config.json({
+        config.addHeader("Authorization", "Basic " + api_key);
+        var params = config.json({
             redirect: "followRedirects",
         }, {
             include: ["url", "headers"],
         });
-        const requests = [{ muteHttpExceptions: true, ...params }];
-        const [response] = UrlFetchApp.fetchAll(requests);
-        const responseStatus = FetchApp.isSuccess({ response });
+        var requests = [__assign({ muteHttpExceptions: true }, params)];
+        var response = UrlFetchApp.fetchAll(requests)[0];
+        var responseStatus = FetchApp.isSuccess({ response: response });
         if (!responseStatus)
             return [];
-        const { members = [] } = FetchApp.extractJSON({
-            response,
-        });
+        var _k = FetchApp.extractJSON({
+            response: response,
+        }).members, members = _k === void 0 ? [] : _k;
         return members;
     }
     catch (error) {
@@ -123,56 +139,55 @@ const getMembers = ({ count = 10, fields = {
         return [];
     }
 };
-const hasMember = ({ email, listId, settings = getSettings(), onError = console.warn, }) => {
+var hasMember = function (_a) {
+    var email = _a.email, listId = _a.listId, _b = _a.settings, settings = _b === void 0 ? getSettings() : _b, _c = _a.onError, onError = _c === void 0 ? console.warn : _c;
     try {
         if (!listId)
             throw new Error(CONFIG.errors.members.unknownList);
         if (!email)
             throw new Error(CONFIG.errors.members.unknownEmail);
-        const { api_key, domain, server, version } = validateMailchimpSettings(settings);
-        const config = FetchApp.getConfig({
-            domain,
+        var _d = validateMailchimpSettings(settings), api_key = _d.api_key, domain = _d.domain, server = _d.server, version = _d.version;
+        var config = FetchApp.getConfig({
+            domain: domain,
             subdomains: [server, "api"],
             paths: [version, "lists", listId, "members", toMD5lowercase(email)],
         });
-        config.addHeader("Authorization", `Basic ${api_key}`);
-        const params = config.json({
+        config.addHeader("Authorization", "Basic " + api_key);
+        var params = config.json({
             redirect: "followRedirects",
         }, {
             include: ["url", "headers"],
         });
-        const requests = [
-            {
-                muteHttpExceptions: true,
-                ...params,
-            },
+        var requests = [
+            __assign({ muteHttpExceptions: true }, params),
         ];
-        const [response] = UrlFetchApp.fetchAll(requests);
-        return FetchApp.isSuccess({ response, failureOn: [404] });
+        var response = UrlFetchApp.fetchAll(requests)[0];
+        return FetchApp.isSuccess({ response: response, failureOn: [404] });
     }
     catch (error) {
         onError(error);
         return false;
     }
 };
-const addMember = ({ type = "html", email, isVIP = false, listId, settings = getSettings(), status = "subscribed", onError = console.warn, }) => {
+var addMember = function (_a) {
+    var _b = _a.type, type = _b === void 0 ? "html" : _b, email = _a.email, _c = _a.isVIP, isVIP = _c === void 0 ? false : _c, listId = _a.listId, _d = _a.settings, settings = _d === void 0 ? getSettings() : _d, _e = _a.status, status = _e === void 0 ? "subscribed" : _e, _f = _a.onError, onError = _f === void 0 ? console.warn : _f;
     try {
-        const { api_key, domain, server, version } = validateMailchimpSettings(settings);
-        const payload = {
+        var _g = validateMailchimpSettings(settings), api_key = _g.api_key, domain = _g.domain, server = _g.server, version = _g.version;
+        var payload = {
             email_address: email,
             email_type: type,
             vip: isVIP,
-            status,
+            status: status,
         };
-        const config = FetchApp.getConfig({
-            domain,
+        var config = FetchApp.getConfig({
+            domain: domain,
             subdomains: [server, "api"],
             paths: [version, "lists", listId, "members"],
             method: "POST",
-            payload,
+            payload: payload,
         });
-        config.addHeader("Authorization", `Basic ${api_key}`);
-        const params = config.json({
+        config.addHeader("Authorization", "Basic " + api_key);
+        var params = config.json({
             redirect: "followRedirects",
         }, {
             include: ["url", "headers", "method", "payload"],
@@ -186,25 +201,29 @@ const addMember = ({ type = "html", email, isVIP = false, listId, settings = get
         return false;
     }
 };
-const addMembers = ({ listId, members, onError = console.warn, settings, }) => {
+var addMembers = function (_a) {
+    var listId = _a.listId, members = _a.members, _b = _a.onError, onError = _b === void 0 ? console.warn : _b, settings = _a.settings;
     try {
-        const { limits: { connections: { concurrent }, }, } = CONFIG;
-        const paramChunks = chunkify(members, { size: concurrent });
-        return paramChunks.every((chunk) => chunk.every((param) => addMember({ ...param, settings, onError, listId })));
+        var concurrent = CONFIG.limits.connections.concurrent;
+        var paramChunks = chunkify(members, { size: concurrent });
+        return paramChunks.every(function (chunk) {
+            return chunk.every(function (param) { return addMember(__assign(__assign({}, param), { settings: settings, onError: onError, listId: listId })); });
+        });
     }
     catch (error) {
         onError(error);
         return false;
     }
 };
-const deleteMember = ({ email, listId, permanent = false, settings = getSettings(), onError = console.warn, }) => {
+var deleteMember = function (_a) {
+    var email = _a.email, listId = _a.listId, _b = _a.permanent, permanent = _b === void 0 ? false : _b, _c = _a.settings, settings = _c === void 0 ? getSettings() : _c, _d = _a.onError, onError = _d === void 0 ? console.warn : _d;
     try {
         if (!email)
             throw new Error(CONFIG.errors.members.unknownEmail);
-        const { api_key, domain, server, version } = validateMailchimpSettings(settings);
-        const hash = toMD5lowercase(email);
-        const config = FetchApp.getConfig({
-            domain,
+        var _e = validateMailchimpSettings(settings), api_key = _e.api_key, domain = _e.domain, server = _e.server, version = _e.version;
+        var hash = toMD5lowercase(email);
+        var config = FetchApp.getConfig({
+            domain: domain,
             subdomains: [server, "api"],
             method: "DELETE",
             paths: [version, "lists", listId, "members", hash],
@@ -213,21 +232,18 @@ const deleteMember = ({ email, listId, permanent = false, settings = getSettings
             config.addPaths("actions", "delete-permanent");
             config.method = "POST";
         }
-        config.addHeader("Authorization", `Basic ${api_key}`);
-        const params = config.json({
+        config.addHeader("Authorization", "Basic " + api_key);
+        var params = config.json({
             redirect: "followRedirects",
         }, {
             include: ["url", "headers", "method"],
         });
-        const requests = [
-            {
-                muteHttpExceptions: true,
-                ...params,
-            },
+        var requests = [
+            __assign({ muteHttpExceptions: true }, params),
         ];
-        const [response] = UrlFetchApp.fetchAll(requests);
+        var response = UrlFetchApp.fetchAll(requests)[0];
         return FetchApp.isSuccess({
-            response,
+            response: response,
             successOn: [CONFIG.statusCodes.members.delete.success],
         });
     }
@@ -236,15 +252,15 @@ const deleteMember = ({ email, listId, permanent = false, settings = getSettings
         return false;
     }
 };
-const getDefaults = () => ({
+var getDefaults = function () { return ({
     version: CONFIG.version,
     domain: CONFIG.domain,
     api_key: "",
     listName: "",
     server: "",
-});
-const getSettings = () => {
-    const defaults = {
+}); };
+var getSettings = function () {
+    var defaults = {
         version: CONFIG.version,
         domain: CONFIG.domain,
         api_key: "",
@@ -252,22 +268,22 @@ const getSettings = () => {
         server: "",
     };
     try {
-        const { property } = CONFIG;
-        const store = PropertiesService.getUserProperties();
-        const settings = JSON.parse(store.getProperty(property) || "{}");
-        return { ...defaults, ...settings };
+        var property = CONFIG.property;
+        var store = PropertiesService.getUserProperties();
+        var settings = JSON.parse(store.getProperty(property) || "{}");
+        return __assign(__assign({}, defaults), settings);
     }
     catch (error) {
         console.warn(error);
         return defaults;
     }
 };
-const setSettings = (settings) => {
+var setSettings = function (settings) {
     try {
-        const { property } = CONFIG;
-        const store = PropertiesService.getUserProperties();
-        const oldSettings = getSettings();
-        store.setProperty(property, JSON.stringify({ ...oldSettings, ...settings }));
+        var property = CONFIG.property;
+        var store = PropertiesService.getUserProperties();
+        var oldSettings = getSettings();
+        store.setProperty(property, JSON.stringify(__assign(__assign({}, oldSettings), settings)));
         return true;
     }
     catch (error) {
@@ -275,16 +291,17 @@ const setSettings = (settings) => {
         return false;
     }
 };
-const validateMailchimpSettings = (settings) => {
-    const { errors: { settings: settingsErrors }, version: defaultVersion, } = CONFIG;
-    const { api_key, server, version = defaultVersion } = settings;
+var validateMailchimpSettings = function (settings) {
+    var settingsErrors = CONFIG.errors.settings, defaultVersion = CONFIG.version;
+    var api_key = settings.api_key, server = settings.server, _a = settings.version, version = _a === void 0 ? defaultVersion : _a;
     if (!api_key)
         throw new Error(settingsErrors.api_key);
     if (!server)
         throw new Error(settingsErrors.server);
-    return Object.assign(settings, { version });
+    return Object.assign(settings, { version: version });
 };
-const addUser = ({ settings = getSettings(), }) => {
+var addUser = function (_a) {
+    var _b = _a.settings, settings = _b === void 0 ? getSettings() : _b;
     try {
         throw new Error("method not implemented yet, sorry");
         return true;
@@ -293,11 +310,20 @@ const addUser = ({ settings = getSettings(), }) => {
         return false;
     }
 };
-const union = ({ target, sources = [] }) => {
-    const union = { ...target };
-    const assignedKeys = {};
-    for (const source of sources) {
-        for (const key in source) {
+var __spreadArrays = (this && this.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+};
+var union = function (_a) {
+    var target = _a.target, _b = _a.sources, sources = _b === void 0 ? [] : _b;
+    var union = __assign({}, target);
+    var assignedKeys = {};
+    for (var _i = 0, sources_1 = sources; _i < sources_1.length; _i++) {
+        var source = sources_1[_i];
+        for (var key in source) {
             if (key in assignedKeys || key in union)
                 continue;
             assignedKeys[key] |= 1;
@@ -306,35 +332,38 @@ const union = ({ target, sources = [] }) => {
     }
     return union;
 };
-const deepCopy = ({ source, skip = [], }) => {
-    const output = (Array.isArray(source) ? [] : {});
-    Object.entries(source).forEach(([key, val]) => {
+var deepCopy = function (_a) {
+    var source = _a.source, _b = _a.skip, skip = _b === void 0 ? [] : _b;
+    var output = (Array.isArray(source) ? [] : {});
+    Object.entries(source).forEach(function (_a) {
+        var key = _a[0], val = _a[1];
         if (skip.includes(key))
             return;
-        const isObj = typeof val === "object" && val;
-        output[key] = isObj ? deepCopy({ source: val, skip }) : val;
+        var isObj = typeof val === "object" && val;
+        output[key] = isObj ? deepCopy({ source: val, skip: skip }) : val;
     });
     return output;
 };
-const toISO8601Timestamp = (date = Date.now()) => {
-    const parsed = new Date(date);
-    const MIN_IN_HOUR = 60;
-    const hours = parsed.getTimezoneOffset() / MIN_IN_HOUR;
-    const fraction = (hours - Math.trunc(hours)) * MIN_IN_HOUR;
-    const sign = hours < 0 ? "-" : "+";
-    const offset = `${sign}${`${Math.abs(hours)}`.padStart(2, "0")}:${`${fraction}`.padEnd(2, "0")}`;
+var toISO8601Timestamp = function (date) {
+    if (date === void 0) { date = Date.now(); }
+    var parsed = new Date(date);
+    var MIN_IN_HOUR = 60;
+    var hours = parsed.getTimezoneOffset() / MIN_IN_HOUR;
+    var fraction = (hours - Math.trunc(hours)) * MIN_IN_HOUR;
+    var sign = hours < 0 ? "-" : "+";
+    var offset = "" + sign + ("" + Math.abs(hours)).padStart(2, "0") + ":" + ("" + fraction).padEnd(2, "0");
     return parsed.toISOString().slice(0, -5) + offset;
 };
-const validateMailchimpQuery = (type, query) => {
-    const { count, fields, since, sort, status } = query;
-    const validated = {};
+var validateMailchimpQuery = function (type, query) {
+    var count = query.count, fields = query.fields, since = query.since, sort = query.sort, status = query.status;
+    var validated = {};
     if (count !== undefined) {
         validated.count = count > 1e3 ? 1e3 : count < 10 ? 10 : count;
     }
     if (sort !== undefined) {
-        const { sort: { field, direction = "DESC" } = {} } = query;
-        const directions = ["ASC", "DESC"];
-        const fields = new Map([
+        var _a = query.sort, _b = _a === void 0 ? {} : _a, field = _b.field, _c = _b.direction, direction = _c === void 0 ? "DESC" : _c;
+        var directions = ["ASC", "DESC"];
+        var fields_1 = new Map([
             [
                 "members",
                 {
@@ -350,14 +379,14 @@ const validateMailchimpQuery = (type, query) => {
                 },
             ],
         ]);
-        const ucased = direction.toUpperCase();
+        var ucased = direction.toUpperCase();
         validated.sort_dir = directions.includes(ucased) ? ucased : "DESC";
-        const fieldMap = fields.get(type);
+        var fieldMap = fields_1.get(type);
         if (fieldMap && field)
             validated.sort_field = fieldMap[field] || Object.values(fieldMap)[0];
     }
     if (status !== undefined && status !== "any") {
-        const validStatuses = new Set([
+        var validStatuses = new Set([
             "subscribed",
             "unsubscribed",
             "cleaned",
@@ -371,54 +400,55 @@ const validateMailchimpQuery = (type, query) => {
         validated.since_timestamp_opt = toISO8601Timestamp(since);
     }
     if (fields !== undefined) {
-        const { fields: { exclude = [] } = {} } = query;
-        validated.exclude_fields = exclude.map((ex) => `${type}.${ex}`);
+        var _d = query.fields, _e = (_d === void 0 ? {} : _d).exclude, exclude = _e === void 0 ? [] : _e;
+        validated.exclude_fields = exclude.map(function (ex) { return type + "." + ex; });
     }
-    return deepCopy({
-        source: query,
-        skip: ["fields", "sort", "status"],
-        ...validated,
-    });
+    return deepCopy(__assign({ source: query, skip: ["fields", "sort", "status"] }, validated));
 };
-const toMD5lowercase = (email) => {
-    const digest = Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, email.toLowerCase(), Utilities.Charset.UTF_8);
+var toMD5lowercase = function (email) {
+    var digest = Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, email.toLowerCase(), Utilities.Charset.UTF_8);
     return digest
-        .map((b) => (b < 0 ? b + 256 : b).toString(16).padStart(2, "0"))
+        .map(function (b) { return (b < 0 ? b + 256 : b).toString(16).padStart(2, "0"); })
         .join("");
 };
-const chunkify = (source, { limits = [], size } = {}) => {
-    const output = [];
+var chunkify = function (source, _a) {
+    var _b = _a === void 0 ? {} : _a, _c = _b.limits, limits = _c === void 0 ? [] : _c, size = _b.size;
+    var output = [];
     if (size) {
-        const { length } = source;
-        const maxNumChunks = Math.ceil((length || 1) / size);
-        let numChunksLeft = maxNumChunks;
+        var length_1 = source.length;
+        var maxNumChunks = Math.ceil((length_1 || 1) / size);
+        var numChunksLeft = maxNumChunks;
         while (numChunksLeft) {
-            const chunksProcessed = maxNumChunks - numChunksLeft;
-            const elemsProcessed = chunksProcessed * size;
+            var chunksProcessed = maxNumChunks - numChunksLeft;
+            var elemsProcessed = chunksProcessed * size;
             output.push(source.slice(elemsProcessed, elemsProcessed + size));
             numChunksLeft--;
         }
         return output;
     }
-    const { length } = limits;
+    var length = limits.length;
     if (!length)
-        return [[...source]];
-    let lastSlicedElem = 0;
-    limits.forEach((limit, i) => {
-        const limitPosition = lastSlicedElem + limit;
+        return [__spreadArrays(source)];
+    var lastSlicedElem = 0;
+    limits.forEach(function (limit, i) {
+        var limitPosition = lastSlicedElem + limit;
         output[i] = source.slice(lastSlicedElem, limitPosition);
         lastSlicedElem = limitPosition;
     });
-    const lastChunk = source.slice(lastSlicedElem);
+    var lastChunk = source.slice(lastSlicedElem);
     lastChunk.length && output.push(lastChunk);
     return output;
 };
-const processRequests = ({ paramsList, successOn, failureOn, }) => {
-    const commonParams = { muteHttpExceptions: true };
-    const requests = paramsList.map((params) => ({ ...commonParams, ...params }));
-    const responses = UrlFetchApp.fetchAll(requests);
-    return responses.every((response) => FetchApp.isSuccess({ response, successOn, failureOn }));
+var processRequests = function (_a) {
+    var paramsList = _a.paramsList, successOn = _a.successOn, failureOn = _a.failureOn;
+    var commonParams = { muteHttpExceptions: true };
+    var requests = paramsList.map(function (params) { return (__assign(__assign({}, commonParams), params)); });
+    var responses = UrlFetchApp.fetchAll(requests);
+    return responses.every(function (response) {
+        return FetchApp.isSuccess({ response: response, successOn: successOn, failureOn: failureOn });
+    });
 };
-const addWebhook = ({ settings = getSettings(), listId, }) => {
+var addWebhook = function (_a) {
+    var _b = _a.settings, settings = _b === void 0 ? getSettings() : _b, listId = _a.listId;
     throw new Error("method not implemented yet, sorry");
 };

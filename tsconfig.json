@@ -1,16 +1,16 @@
 {
-  "compilerOptions": {
-    "removeComments": true,
-    "noEmitOnError": true,
-    "checkJs": true,
-    "target": "ES2019",
-    "types": ["google-apps-script"],
-    "lib": ["ESNext"],
-    "strict": true,
-    "allowJs": true,
-    "moduleResolution": "node",
-    "module": "none",
-    "outFile": "dist/bundle.js"
-  },
-  "exclude": ["dist", "node_modules", "tests"]
+    "compilerOptions": {
+        "removeComments": true,
+        "noEmitOnError": true,
+        "checkJs": true,
+        "target": "ES5",
+        "types": ["google-apps-script"],
+        "lib": ["ESNext"],
+        "strict": true,
+        "allowJs": true,
+        "moduleResolution": "node",
+        "module": "none",
+        "outFile": "dist/bundle.js"
+    },
+    "exclude": ["dist", "node_modules", "tests"]
 }
