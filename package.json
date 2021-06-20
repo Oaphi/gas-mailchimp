@@ -1,13 +1,15 @@
 {
   "name": "gas-mailchimp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Apps Script Mailchimp API client library",
   "main": "dist/dist.js",
   "scripts": {
     "test": "mocha",
     "push": "npm run build && clasp push --force",
     "build": "tsc",
-    "version": "npm run push && clasp deploy"
+    "version": "bash ./scripts/version.sh",
+    "deploy": "bash ./scripts/deploy.sh",
+    "publish:minor": "npm run push && npm version minor && npm run deploy"
   },
   "repository": {
     "type": "git",
@@ -29,6 +31,7 @@
     "@types/google-apps-script": "^1.0.32",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
+    "clasp": "^1.0.0",
     "mocha": "^8.4.0",
     "typescript": "^3.9.9"
   }
