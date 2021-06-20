@@ -91,7 +91,7 @@ declare namespace Fetch {
     response: GoogleAppsScript.URL_Fetch.HTTPResponse;
   };
 
-  type extractJSON<T extends object = object> = (
+  type extractJSON = <T extends object = object>(
     config: extractJSONOptions
   ) => T;
 
