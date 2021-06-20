@@ -1,70 +1,4 @@
 /**
- * @summary gets a member from subscriber list
- * @return {Mailchimp.Members.Member|null}
- */
-const getMember = ({
-    email,
-    fields = {
-        exclude: [],
-    },
-    listId,
-    settings = getSettings(),
-    since,
-    status = "any",
-    onError = console.warn,
-}: Mailchimp.Members.MemberGetParams): Mailchimp.Members.Member | null => {
-    try {
-        if (!email) throw new Error(CONFIG.errors.members.unknownEmail);
-        if (!listId) throw new Error(CONFIG.errors.members.unknownList);
-
-        const { api_key, domain, server, version } =
-            validateMailchimpSettings(settings);
-
-        const hash = toMD5lowercase(email);
-
-        const query = validateMailchimpQuery("members", {
-            fields,
-            status,
-            since,
-        });
-
-        const config = FetchApp.getConfig({
-            domain,
-            paths: [version, "lists", listId, "members", hash],
-            subdomains: [server, "api"],
-            query,
-        });
-
-        config.addHeader("Authorization", `Basic ${api_key}`);
-
-        const params = config.json(
-            {
-                redirect: "followRedirects",
-            },
-            {
-                include: ["url", "headers"],
-            }
-        );
-
-        const requests = [{ muteHttpExceptions: true, ...params }];
-        const [response] = UrlFetchApp.fetchAll(requests);
-
-        const responseStatus = FetchApp.isSuccess({ response });
-
-        if (!responseStatus) return null;
-
-        const member: Mailchimp.Members.Member = FetchApp.extractJSON({
-            response,
-        });
-
-        return member;
-    } catch (error) {
-        onError(error);
-        return null;
-    }
-};
-
-/**
  * @summary gets a list of members from subscriber list
  * @param {Mailchimp.Members.MemberListParams} options
  * @return {Mailchimp.Members.Member[]}
@@ -135,6 +69,43 @@ const getMembers = ({
     } catch (error) {
         onError(error);
         return [];
+    }
+};
+
+/**
+ * @summary gets a member from subscriber list
+ * @return {Mailchimp.Members.Member|null}
+ */
+const getMember = ({
+    email,
+    fields = {
+        exclude: [],
+    },
+    listId,
+    settings = getSettings(),
+    since,
+    status = "any",
+    onError = console.warn,
+}: Mailchimp.Members.MemberGetParams): Mailchimp.Members.Member | null => {
+    try {
+        if (!email) throw new Error(CONFIG.errors.members.unknownEmail);
+        if (!listId) throw new Error(CONFIG.errors.members.unknownList);
+
+        const members = getMembers({
+            fields,
+            listId,
+            email,
+            settings,
+            since,
+            status,
+            onError,
+        });
+
+        const [member] = members;
+        return member || null;
+    } catch (error) {
+        onError(error);
+        return null;
     }
 };
 
