@@ -23,16 +23,12 @@ declare namespace Mailchimp {
 
         interface CommonListParams extends CommonParams {
             count?: number;
-            fields?: {
-                exclude: string[];
-            };
             offset?: number;
             sort?: {
                 field: string;
                 direction: Lists.ListSortDirection;
             };
             before?: string | number | Date;
-            since?: string | number | Date;
         }
 
         interface GetListsParams extends CommonListParams {
@@ -53,6 +49,10 @@ declare namespace Mailchimp {
     }
 
     interface CommonParams {
+        fields?: {
+            exclude: string[];
+        };
+        since?: string | number | Date;
         settings?: MailchimpSettings;
         onError?: (err: Error) => void;
     }
@@ -102,6 +102,8 @@ declare namespace Mailchimp {
             email: string;
         }
 
+        interface MemberGetParams extends CommonMemberParams {}
+
         interface MemberListParams
             extends Lists.CommonListParams,
                 CommonMemberParams {}
@@ -141,6 +143,7 @@ declare namespace Mailchimp {
         deleteMember(params: Members.MemberDeleteParams): boolean;
         getDefaults(): MailchimpSettings;
         getLists(params: Lists.GetListsParams): Lists.List[];
+        getMember(params: Members.MemberGetParams): Members.Member | null;
         getMembers(params: Members.MemberListParams): Members.Member[];
         getSettings(): MailchimpSettings;
         setSettings(settings: Partial<MailchimpSettings>): boolean;
