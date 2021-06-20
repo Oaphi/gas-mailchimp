@@ -93,49 +93,6 @@ var getLists = function (_a) {
         return [];
     }
 };
-var getMember = function (_a) {
-    var email = _a.email, _b = _a.fields, fields = _b === void 0 ? {
-        exclude: [],
-    } : _b, listId = _a.listId, _c = _a.settings, settings = _c === void 0 ? getSettings() : _c, since = _a.since, _d = _a.status, status = _d === void 0 ? "any" : _d, _e = _a.onError, onError = _e === void 0 ? console.warn : _e;
-    try {
-        if (!email)
-            throw new Error(CONFIG.errors.members.unknownEmail);
-        if (!listId)
-            throw new Error(CONFIG.errors.members.unknownList);
-        var _f = validateMailchimpSettings(settings), api_key = _f.api_key, domain = _f.domain, server = _f.server, version = _f.version;
-        var hash = toMD5lowercase(email);
-        var query = validateMailchimpQuery("members", {
-            fields: fields,
-            status: status,
-            since: since,
-        });
-        var config = FetchApp.getConfig({
-            domain: domain,
-            paths: [version, "lists", listId, "members", hash],
-            subdomains: [server, "api"],
-            query: query,
-        });
-        config.addHeader("Authorization", "Basic " + api_key);
-        var params = config.json({
-            redirect: "followRedirects",
-        }, {
-            include: ["url", "headers"],
-        });
-        var requests = [__assign({ muteHttpExceptions: true }, params)];
-        var response = UrlFetchApp.fetchAll(requests)[0];
-        var responseStatus = FetchApp.isSuccess({ response: response });
-        if (!responseStatus)
-            return null;
-        var member = FetchApp.extractJSON({
-            response: response,
-        });
-        return member;
-    }
-    catch (error) {
-        onError(error);
-        return null;
-    }
-};
 var getMembers = function (_a) {
     var _b = _a.count, count = _b === void 0 ? 10 : _b, _c = _a.fields, fields = _c === void 0 ? {
         exclude: [],
@@ -180,6 +137,32 @@ var getMembers = function (_a) {
     catch (error) {
         onError(error);
         return [];
+    }
+};
+var getMember = function (_a) {
+    var email = _a.email, _b = _a.fields, fields = _b === void 0 ? {
+        exclude: [],
+    } : _b, listId = _a.listId, _c = _a.settings, settings = _c === void 0 ? getSettings() : _c, since = _a.since, _d = _a.status, status = _d === void 0 ? "any" : _d, _e = _a.onError, onError = _e === void 0 ? console.warn : _e;
+    try {
+        if (!email)
+            throw new Error(CONFIG.errors.members.unknownEmail);
+        if (!listId)
+            throw new Error(CONFIG.errors.members.unknownList);
+        var members = getMembers({
+            fields: fields,
+            listId: listId,
+            email: email,
+            settings: settings,
+            since: since,
+            status: status,
+            onError: onError,
+        });
+        var member = members[0];
+        return member || null;
+    }
+    catch (error) {
+        onError(error);
+        return null;
     }
 };
 var hasMember = function (_a) {

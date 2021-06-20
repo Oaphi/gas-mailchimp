@@ -35,6 +35,12 @@ Settings can be retrieved and updated via the following methods:
 | `setSettings` | Sets settings (via partial updates) | `MailchimpSettings` | `boolean`           |
 | `useSettings` | Overrides settings completely       | `MailchimpSettings` | `boolean`           |
 
+## Lists
+
+| Method     | Description                                      | Returns  |
+| ---------- | ------------------------------------------------ | -------- |
+| `getLists` | Gets a list of `List` objects (subscriber lists) | `List[]` |
+
 ## Members
 
 | Method         | Description                                        | Returns          |
@@ -49,6 +55,6 @@ Settings can be retrieved and updated via the following methods:
 
 Some actions can be batched - the library exposes the following batch methods:
 
-| Method       | Description                   | Returns   |
-| ------------ | ----------------------------- | --------- |
-| `addMembers` | Adds severl `Member`s at once | `boolean` |
+| Method       | Description                    | Returns   |
+| ------------ | ------------------------------ | --------- |
+| `addMembers` | Adds several `Member`s at once | `boolean` |
