@@ -144,6 +144,7 @@ declare namespace Mailchimp {
         getMembers(params: Members.MemberListParams): Members.Member[];
         getSettings(): MailchimpSettings;
         setSettings(settings: Partial<MailchimpSettings>): boolean;
+        useSettings(settings: Partial<MailchimpSettings>): boolean;
     }
 }
 

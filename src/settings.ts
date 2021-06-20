@@ -1,3 +1,11 @@
+const overrides: {
+    settings: Partial<Mailchimp.MailchimpSettings>;
+    used: boolean;
+} = {
+    used: false,
+    settings: {},
+};
+
 /**
  * @summary gets Mailchimp defaults for settings
  * @return {Mailchimp.MailchimpSettings}
@@ -23,6 +31,9 @@ const getSettings: Mailchimp.MailchimpApp["getSettings"] = () => {
         server: "",
     };
 
+    const { used, settings } = overrides;
+    if (used) return settings;
+
     try {
         const { property } = CONFIG;
 
@@ -39,7 +50,7 @@ const getSettings: Mailchimp.MailchimpApp["getSettings"] = () => {
 
 /**
  * @summary sets Mailchimp settings to user properties
- * @param {Partial<Mailchimp.MailchimpSettings>} options
+ * @param {Partial<Mailchimp.MailchimpSettings>} settings
  * @return {boolean}
  */
 const setSettings: Mailchimp.MailchimpApp["setSettings"] = (
@@ -52,11 +63,28 @@ const setSettings: Mailchimp.MailchimpApp["setSettings"] = (
 
         const oldSettings = getSettings();
 
-        store.setProperty(
-            property,
-            JSON.stringify({ ...oldSettings, ...settings })
-        );
+        const updated = deepAssign(oldSettings, settings);
 
+        store.setProperty(property, JSON.stringify(updated));
+
+        return true;
+    } catch (error) {
+        console.warn(error);
+        return false;
+    }
+};
+
+/**
+ * @summary bypass PropertyService and use the settings passed in
+ * @param {Partial<Mailchimp.MailchimpSettings>} settings
+ * @return {boolean}
+ */
+const useSettings: Mailchimp.MailchimpApp["useSettings"] = (
+    settings: Partial<Mailchimp.MailchimpSettings>
+) => {
+    try {
+        deepAssign(overrides.settings, getDefaults(), settings);
+        overrides.used = true;
         return true;
     } catch (error) {
         console.warn(error);
