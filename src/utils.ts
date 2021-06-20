@@ -196,7 +196,6 @@ const validateMailchimpQuery = (
 
     return deepCopy({
         source: query,
-        skip: ["fields", "sort", "status"],
         ...validated,
     });
 };
