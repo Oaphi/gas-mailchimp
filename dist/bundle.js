@@ -93,6 +93,49 @@ var getLists = function (_a) {
         return [];
     }
 };
+var getMember = function (_a) {
+    var email = _a.email, _b = _a.fields, fields = _b === void 0 ? {
+        exclude: [],
+    } : _b, listId = _a.listId, _c = _a.settings, settings = _c === void 0 ? getSettings() : _c, since = _a.since, _d = _a.status, status = _d === void 0 ? "any" : _d, _e = _a.onError, onError = _e === void 0 ? console.warn : _e;
+    try {
+        if (!email)
+            throw new Error(CONFIG.errors.members.unknownEmail);
+        if (!listId)
+            throw new Error(CONFIG.errors.members.unknownList);
+        var _f = validateMailchimpSettings(settings), api_key = _f.api_key, domain = _f.domain, server = _f.server, version = _f.version;
+        var hash = toMD5lowercase(email);
+        var query = validateMailchimpQuery("members", {
+            fields: fields,
+            status: status,
+            since: since,
+        });
+        var config = FetchApp.getConfig({
+            domain: domain,
+            paths: [version, "lists", listId, "members", hash],
+            subdomains: [server, "api"],
+            query: query,
+        });
+        config.addHeader("Authorization", "Basic " + api_key);
+        var params = config.json({
+            redirect: "followRedirects",
+        }, {
+            include: ["url", "headers"],
+        });
+        var requests = [__assign({ muteHttpExceptions: true }, params)];
+        var response = UrlFetchApp.fetchAll(requests)[0];
+        var responseStatus = FetchApp.isSuccess({ response: response });
+        if (!responseStatus)
+            return null;
+        var member = FetchApp.extractJSON({
+            response: response,
+        });
+        return member;
+    }
+    catch (error) {
+        onError(error);
+        return null;
+    }
+};
 var getMembers = function (_a) {
     var _b = _a.count, count = _b === void 0 ? 10 : _b, _c = _a.fields, fields = _c === void 0 ? {
         exclude: [],
@@ -207,7 +250,9 @@ var addMembers = function (_a) {
         var concurrent = CONFIG.limits.connections.concurrent;
         var paramChunks = chunkify(members, { size: concurrent });
         return paramChunks.every(function (chunk) {
-            return chunk.every(function (param) { return addMember(__assign(__assign({}, param), { settings: settings, onError: onError, listId: listId })); });
+            return chunk.every(function (param) {
+                return addMember(__assign(__assign({}, param), { settings: settings, onError: onError, listId: listId }));
+            });
         });
     }
     catch (error) {
@@ -252,6 +297,10 @@ var deleteMember = function (_a) {
         return false;
     }
 };
+var overrides = {
+    used: false,
+    settings: {},
+};
 var getDefaults = function () { return ({
     version: CONFIG.version,
     domain: CONFIG.domain,
@@ -267,11 +316,14 @@ var getSettings = function () {
         listName: "",
         server: "",
     };
+    var used = overrides.used, settings = overrides.settings;
+    if (used)
+        return settings;
     try {
         var property = CONFIG.property;
         var store = PropertiesService.getUserProperties();
-        var settings = JSON.parse(store.getProperty(property) || "{}");
-        return __assign(__assign({}, defaults), settings);
+        var settings_1 = JSON.parse(store.getProperty(property) || "{}");
+        return __assign(__assign({}, defaults), settings_1);
     }
     catch (error) {
         console.warn(error);
@@ -283,7 +335,19 @@ var setSettings = function (settings) {
         var property = CONFIG.property;
         var store = PropertiesService.getUserProperties();
         var oldSettings = getSettings();
-        store.setProperty(property, JSON.stringify(__assign(__assign({}, oldSettings), settings)));
+        var updated = deepAssign(oldSettings, settings);
+        store.setProperty(property, JSON.stringify(updated));
+        return true;
+    }
+    catch (error) {
+        console.warn(error);
+        return false;
+    }
+};
+var useSettings = function (settings) {
+    try {
+        deepAssign(overrides.settings, getDefaults(), settings);
+        overrides.used = true;
         return true;
     }
     catch (error) {
@@ -344,6 +408,26 @@ var deepCopy = function (_a) {
     });
     return output;
 };
+var deepAssign = function (tgt) {
+    var src = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        src[_i - 1] = arguments[_i];
+    }
+    src.forEach(function (source) {
+        Object.entries(source).forEach(function (_a) {
+            var key = _a[0], val = _a[1];
+            var tgtVal = tgt[key];
+            if (typeof tgtVal === "object" &&
+                tgtVal &&
+                typeof val === "object" &&
+                val)
+                return deepAssign(tgtVal, val);
+            tgt[key] = val;
+            return;
+        });
+    });
+    return tgt;
+};
 var toISO8601Timestamp = function (date) {
     if (date === void 0) { date = Date.now(); }
     var parsed = new Date(date);
@@ -383,7 +467,8 @@ var validateMailchimpQuery = function (type, query) {
         validated.sort_dir = directions.includes(ucased) ? ucased : "DESC";
         var fieldMap = fields_1.get(type);
         if (fieldMap && field)
-            validated.sort_field = fieldMap[field] || Object.values(fieldMap)[0];
+            validated.sort_field =
+                fieldMap[field] || Object.values(fieldMap)[0];
     }
     if (status !== undefined && status !== "any") {
         var validStatuses = new Set([
@@ -403,7 +488,7 @@ var validateMailchimpQuery = function (type, query) {
         var _d = query.fields, _e = (_d === void 0 ? {} : _d).exclude, exclude = _e === void 0 ? [] : _e;
         validated.exclude_fields = exclude.map(function (ex) { return type + "." + ex; });
     }
-    return deepCopy(__assign({ source: query, skip: ["fields", "sort", "status"] }, validated));
+    return deepCopy(__assign({ source: query }, validated));
 };
 var toMD5lowercase = function (email) {
     var digest = Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, email.toLowerCase(), Utilities.Charset.UTF_8);
