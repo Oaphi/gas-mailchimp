@@ -127,7 +127,7 @@ const validateMailchimpQuery = (
         status?: Mailchimp.Members.MemberStatus;
     }
 ): MailchimpQuery => {
-    const { count, fields, since, sort, status } = query;
+    const { count, fields, since, sort, status, ...rest } = query;
 
     const validated: MailchimpQuery = {};
 
@@ -194,10 +194,7 @@ const validateMailchimpQuery = (
         validated.exclude_fields = exclude.map((ex) => `${type}.${ex}`);
     }
 
-    return deepCopy({
-        source: query,
-        ...validated,
-    });
+    return { ...rest, ...validated };
 };
 
 /**
