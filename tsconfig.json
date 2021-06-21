@@ -2,12 +2,13 @@
     "compilerOptions": {
         "removeComments": true,
         "noEmitOnError": true,
-        "target": "ES2019",
+        "target": "es5",
         "types": ["google-apps-script", "mocha", "chai", "node"],
         "lib": ["ESNext"],
         "strict": true,
         "outFile": "dist/bundle.js",
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "downlevelIteration": true
     },
     "include": ["src/**/*"],
     "exclude": ["node_modules"]
