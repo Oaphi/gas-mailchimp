@@ -375,6 +375,13 @@ const validateMailchimpSettings = (settings) => {
         throw new Error(settingsErrors.server);
     return Object.assign(settings, { version });
 };
+Object.assign(this, {
+    overrides,
+    getDefaults,
+    getSettings,
+    setSettings,
+    validateMailchimpSettings,
+});
 const addUser = ({ settings = getSettings(), }) => {
     try {
         throw new Error("method not implemented yet, sorry");

@@ -114,3 +114,11 @@ const validateMailchimpSettings = (
 
     return Object.assign(settings, { version });
 };
+
+Object.assign(this, {
+    overrides,
+    getDefaults,
+    getSettings,
+    setSettings,
+    validateMailchimpSettings,
+});
