@@ -9,7 +9,9 @@
     "build": "tsc",
     "version": "bash ./scripts/version.sh",
     "deploy": "bash ./scripts/deploy.sh",
-    "publish:minor": "npm run push && npm version minor && npm run deploy"
+    "publish:patch": "npm run push && npm version patch && npm run deploy",
+    "publish:minor": "npm run push && npm version minor && npm run deploy",
+    "publish:major": "npm run push && npm version major && npm run deploy"
   },
   "repository": {
     "type": "git",
