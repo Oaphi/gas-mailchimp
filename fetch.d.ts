@@ -1,141 +1,149 @@
 declare namespace Fetch {
-  namespace Enums {
-    enum ContentTypes {
-      FORM = "application/x-www-form-urlencoded",
-      JSON = "application/json",
-      TEXT = "text/plain",
+    namespace Enums {
+        enum ContentTypes {
+            FORM = "application/x-www-form-urlencoded",
+            JSON = "application/json",
+            TEXT = "text/plain",
+        }
+        enum RedirectTypes {
+            FOLLOW = "follow",
+            MANUAL = "manual",
+        }
+        enum AllowedMethods {
+            GET = "GET",
+            PATCH = "PATCH",
+            POST = "POST",
+            PUT = "PUT",
+            DELETE = "DELETE",
+            OPTIONS = "OPTIONS",
+        }
     }
-    enum FetchMethods {
-      GET = "GET",
-      POST = "POST",
-      PUT = "PUT",
-      DELETE = "DELETE",
-      OPTIONS = "OPTIONS",
+
+    interface FetchSettings {
+        contentType?: string;
+        domain: string;
+        method?: Enums.AllowedMethods;
+        mute?: boolean;
+        redirect?: Enums.RedirectTypes;
+        paths?: string[];
+        payload?: object;
+        subdomains?: string[];
+        token?: string;
+        query?: object;
     }
-  }
 
-  const enum ContentTypes {
-    FORM = Fetch.Enums.ContentTypes.FORM,
-    JSON = Fetch.Enums.ContentTypes.JSON,
-    TEXT = Fetch.Enums.ContentTypes.TEXT,
-  }
+    interface JSONmapper {
+        headers?: string;
+        method?: string;
+        redirect?: string;
+        url?: string;
+        [x: string]: string | undefined;
+    }
 
-  const enum FetchMethods {
-    GET = Fetch.Enums.FetchMethods.GET,
-    POST = Fetch.Enums.FetchMethods.POST,
-    PUT = Fetch.Enums.FetchMethods.PUT,
-    DELETE = Fetch.Enums.FetchMethods.DELETE,
-    OPTIONS = Fetch.Enums.FetchMethods.OPTIONS,
-  }
+    class FetchConfigurer {
+        readonly base: string;
+        readonly domain: string;
+        readonly headers: object;
+        readonly path: string;
+        readonly paths: string[];
+        readonly search: string;
+        readonly subdomains: string[];
+        readonly url: string;
 
-  interface JSONmapper {
-    headers?: string;
-    method?: string;
-    redirect?: string;
-    url?: string;
-  }
+        method: Enums.AllowedMethods;
+        payload: string | object | null;
+        type: string;
 
-  interface FetchSettings {
-    contentType?: string;
-    domain: string;
-    method?: keyof typeof FetchMethods;
-    redirect?: boolean;
-    paths?: string[];
-    payload?: object;
-    subdomains?: string[];
-    query?: object;
-  }
+        addHeader(name: string, value: string): FetchConfigurer;
+        addParam(name: string, value: any): FetchConfigurer;
+        addPaths(...paths: string[]): FetchConfigurer;
+        getJSONPayload(): string;
+        getUrlPayload(): string;
+        json<T extends JSONmapper>(
+            mapper?: T,
+            options?: OptionsJSON
+        ): Omit<GoogleAppsScript.URL_Fetch.URLFetchRequest, keyof T> &
+            {
+                [P in T[keyof T]] ?: GoogleAppsScript.URL_Fetch.URLFetchRequest[keyof {
+                    [K in keyof T as P extends T[K] ? K : never]: any;
+                }];
+            };
+        json(): GoogleAppsScript.URL_Fetch.URLFetchRequest;
+        mute(): FetchConfigurer;
+        unmute(): FetchConfigurer;
+        removeHeader(name: string): FetchConfigurer;
 
-  interface FetchConfigurer {
-    readonly base: string;
-    readonly domain: string;
-    readonly headers: Record<string, string>;
-    readonly path: string;
-    readonly paths: string[];
-    readonly search: string;
-    readonly subdomains: string[];
-    readonly url: string;
+        /**
+         * @summary sets OAuth token to config
+         * @description
+         *  Upon calling will set "Authorization" header to "Bearer \<token\>"
+         */
+        setOAuthToken(token?: string): FetchConfigurer;
+    }
 
-    method: string;
-    payload?: string | object;
-    type: string;
+    type ConfigKey = keyof FetchConfigurer;
 
-    addHeader(name: string, value: string): FetchConfigurer;
-    addParam(name: string, value: any): FetchConfigurer;
-    addPaths(...paths: string[]): FetchConfigurer;
-    getJSONPayload(): string;
-    getUrlPayload(): string;
-    json(mapper?: JSONmapper, options?: OptionsJSON): any;
-    removeHeader(name: string): FetchConfigurer;
-  }
+    interface OptionsJSON {
+        exclude?: Array<ConfigKey>;
+        include?: Array<ConfigKey>;
+    }
 
-  type ConfigKey = keyof FetchConfigurer;
+    interface FetchConfig {
+        preferences?: Preferences;
+        (settings: FetchSettings): FetchConfigurer;
+        toQuery?(json: object, options?: Preferences): string;
+        union?(tgt: object, ...src: object[]): object;
+    }
 
-  interface OptionsJSON {
-    exclude?: Array<ConfigKey>;
-    include?: Array<ConfigKey>;
-  }
+    interface extractJSON {
+        (config: {
+            response: GoogleAppsScript.URL_Fetch.HTTPResponse;
+            onError?: (err: Error) => any;
+        }): object;
+    }
 
-  interface FetchConfig {
-    preferences?: Preferences;
-    (settings: FetchSettings): FetchConfigurer;
-    toQuery?(json: object, options?: Preferences): string;
-    union?(tgt: object, ...src: object[]): object;
-  }
+    interface getConfig {
+        (settings: FetchSettings): FetchConfigurer;
+    }
 
-  type CommonOptions = {
-    onError?: (err: Error) => any;
-  };
+    interface isSuccess {
+        (settings: {
+            response: GoogleAppsScript.URL_Fetch.HTTPResponse;
+            failureOn?: number[];
+            successOn?: number[];
+            onFailure?: (code: number, content: string) => any;
+        }): boolean;
+    }
 
-  type extractJSONOptions = CommonOptions & {
-    response: GoogleAppsScript.URL_Fetch.HTTPResponse;
-  };
+    namespace Preferences {
+        type ArrayNotations = "comma" | "bracket" | "empty_bracket";
+    }
 
-  type extractJSON = <T extends object = object>(
-    config: extractJSONOptions
-  ) => T;
+    interface Preferences {
+        arrayNotation?: Preferences.ArrayNotations;
+    }
 
-  interface getConfig {
-    (settings: FetchSettings): FetchConfigurer;
-  }
+    interface setPreferences {
+        (preferences: Preferences): void;
+    }
 
-  interface isSuccess {
-    (settings: {
-      response: GoogleAppsScript.URL_Fetch.HTTPResponse;
-      failureOn?: number[];
-      successOn?: number[];
-      onFailure?: (code: number, content: string) => any;
-    }): boolean;
-  }
+    interface setToQuery {
+        (jsonToQueryUtil: (json: object, options?: object) => string): void;
+    }
 
-  namespace Preferences {
-    type ArrayNotations = "comma" | "bracket" | "empty_bracket";
-  }
+    interface setUnionizer {
+        (unionizer: (tgt: object, ...src: object[]) => object): void;
+    }
 
-  interface Preferences {
-    arrayNotation?: Preferences.ArrayNotations;
-  }
-
-  interface setPreferences {
-    (preferences: Preferences): void;
-  }
-
-  interface setToQuery {
-    (jsonToQueryUtil: (json: object, options?: object) => string): void;
-  }
-
-  interface setUnionizer {
-    (unionizer: (tgt: object, ...src: object[]) => object): void;
-  }
-
-  interface FetchApp {
-    extractJSON: extractJSON;
-    getConfig: getConfig;
-    isSuccess: isSuccess;
-    setPreferences: setPreferences;
-    setToQuery: setToQuery;
-    setUnionizer: setUnionizer;
-  }
+    interface FetchApp {
+        AllowedMethods: typeof Enums.AllowedMethods;
+        extractJSON: extractJSON;
+        getConfig: getConfig;
+        isSuccess: isSuccess;
+        setPreferences: setPreferences;
+        setToQuery: setToQuery;
+        setUnionizer: setUnionizer;
+    }
 }
 
 declare const FetchApp: Fetch.FetchApp;
