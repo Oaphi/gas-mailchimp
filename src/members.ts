@@ -1,3 +1,6 @@
+/// <reference types="../index" />
+/// <reference types="../fetch" />
+
 /**
  * @summary gets a list of members from subscriber list
  * @param {Mailchimp.Members.MemberListParams} options
@@ -370,3 +373,12 @@ const deleteMember = ({
         return false;
     }
 };
+
+Object.assign(this, {
+    addMember,
+    deleteMember,
+    getMember,
+    getMembers,
+    hasMember,
+    updateMember,
+});
