@@ -1,6 +1,6 @@
 {
   "name": "gas-mailchimp",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Apps Script Mailchimp API client library",
   "main": "dist/dist.js",
   "scripts": {
