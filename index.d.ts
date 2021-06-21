@@ -86,6 +86,11 @@ declare namespace Mailchimp {
         interface AddMemberParams extends CommonMemberParams {
             isVIP?: boolean;
             type?: "html" | "text";
+            merges?: { [x:string]: unknown }
+        }
+
+        interface UpdateMemberParams extends AddMemberParams {
+            unsafe?: boolean;
         }
 
         interface BatchMemberParam extends AddMemberParams {
@@ -140,6 +145,7 @@ declare namespace Mailchimp {
         MAX_COUNT: MAX_COUNT;
         addMember(params: Members.AddMemberParams): boolean;
         addMembers(params: Members.BatchMemberParams): boolean;
+        updateMember(params: Members.UpdateMemberParams): boolean;
         deleteMember(params: Members.MemberDeleteParams): boolean;
         getDefaults(): MailchimpSettings;
         getLists(params: Lists.GetListsParams): Lists.List[];

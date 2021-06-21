@@ -170,15 +170,19 @@ const addMember: Mailchimp.MailchimpApp["addMember"] = ({
     email,
     isVIP = false,
     listId,
+    merges = {},
     settings = getSettings(),
     status = "subscribed",
     onError = console.warn,
 }) => {
     try {
+        if (!email) throw new Error(CONFIG.errors.members.unknownEmail);
+
         const { api_key, domain, server, version } =
             validateMailchimpSettings(settings);
 
         const payload = {
+            merge_fields: merges,
             email_address: email,
             email_type: type,
             vip: isVIP,
@@ -189,7 +193,64 @@ const addMember: Mailchimp.MailchimpApp["addMember"] = ({
             domain,
             subdomains: [server, "api"],
             paths: [version, "lists", listId, "members"],
-            method: "POST",
+            method: FetchApp.AllowedMethods.POST,
+            payload,
+        });
+
+        config.addHeader("Authorization", `Basic ${api_key}`);
+
+        const params = config.json(
+            {
+                redirect: "followRedirects",
+            },
+            {
+                include: ["url", "headers", "method", "payload"],
+            }
+        );
+
+        return processRequests({
+            paramsList: [params],
+        });
+    } catch (error) {
+        onError(error);
+        return false;
+    }
+};
+
+const updateMember: Mailchimp.MailchimpApp["updateMember"] = ({
+    type = "html",
+    email,
+    isVIP = false,
+    listId,
+    merges = {},
+    settings = getSettings(),
+    status = "subscribed",
+    onError = console.warn,
+    unsafe = false,
+}) => {
+    try {
+        if (!email) throw new Error(CONFIG.errors.members.unknownEmail);
+
+        const { api_key, domain, server, version } =
+            validateMailchimpSettings(settings);
+
+        const query = { skip_merge_validation: unsafe };
+
+        const payload = {
+            merge_fields: merges,
+            email_address: email,
+            email_type: type,
+            // language: "en",
+            vip: isVIP,
+            status,
+            query,
+        };
+
+        const config = FetchApp.getConfig({
+            domain,
+            subdomains: [server, "api"],
+            paths: [version, "lists", listId, "members"],
+            method: FetchApp.AllowedMethods.PATCH,
             payload,
         });
 
@@ -271,13 +332,13 @@ const deleteMember = ({
         const config = FetchApp.getConfig({
             domain,
             subdomains: [server, "api"],
-            method: "DELETE",
+            method: FetchApp.AllowedMethods.DELETE,
             paths: [version, "lists", listId, "members", hash],
         });
 
         if (permanent) {
             config.addPaths("actions", "delete-permanent");
-            config.method = "POST";
+            config.method = FetchApp.AllowedMethods.POST;
         }
 
         config.addHeader("Authorization", `Basic ${api_key}`);
