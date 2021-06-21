@@ -10,7 +10,8 @@
         "allowJs": true,
         "moduleResolution": "node",
         "module": "none",
-        "outFile": "dist/bundle.js"
+        "outFile": "dist/bundle.js",
+        "skipLibCheck": true
     },
     "exclude": ["dist", "node_modules", "tests"]
 }
