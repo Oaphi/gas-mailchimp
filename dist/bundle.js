@@ -196,10 +196,13 @@ var hasMember = function (_a) {
     }
 };
 var addMember = function (_a) {
-    var _b = _a.type, type = _b === void 0 ? "html" : _b, email = _a.email, _c = _a.isVIP, isVIP = _c === void 0 ? false : _c, listId = _a.listId, _d = _a.settings, settings = _d === void 0 ? getSettings() : _d, _e = _a.status, status = _e === void 0 ? "subscribed" : _e, _f = _a.onError, onError = _f === void 0 ? console.warn : _f;
+    var _b = _a.type, type = _b === void 0 ? "html" : _b, email = _a.email, _c = _a.isVIP, isVIP = _c === void 0 ? false : _c, listId = _a.listId, _d = _a.merges, merges = _d === void 0 ? {} : _d, _e = _a.settings, settings = _e === void 0 ? getSettings() : _e, _f = _a.status, status = _f === void 0 ? "subscribed" : _f, _g = _a.onError, onError = _g === void 0 ? console.warn : _g;
     try {
-        var _g = validateMailchimpSettings(settings), api_key = _g.api_key, domain = _g.domain, server = _g.server, version = _g.version;
+        if (!email)
+            throw new Error(CONFIG.errors.members.unknownEmail);
+        var _h = validateMailchimpSettings(settings), api_key = _h.api_key, domain = _h.domain, server = _h.server, version = _h.version;
         var payload = {
+            merge_fields: merges,
             email_address: email,
             email_type: type,
             vip: isVIP,
@@ -209,7 +212,44 @@ var addMember = function (_a) {
             domain: domain,
             subdomains: [server, "api"],
             paths: [version, "lists", listId, "members"],
-            method: "POST",
+            method: FetchApp.AllowedMethods.POST,
+            payload: payload,
+        });
+        config.addHeader("Authorization", "Basic " + api_key);
+        var params = config.json({
+            redirect: "followRedirects",
+        }, {
+            include: ["url", "headers", "method", "payload"],
+        });
+        return processRequests({
+            paramsList: [params],
+        });
+    }
+    catch (error) {
+        onError(error);
+        return false;
+    }
+};
+var updateMember = function (_a) {
+    var _b = _a.type, type = _b === void 0 ? "html" : _b, email = _a.email, _c = _a.isVIP, isVIP = _c === void 0 ? false : _c, listId = _a.listId, _d = _a.merges, merges = _d === void 0 ? {} : _d, _e = _a.settings, settings = _e === void 0 ? getSettings() : _e, _f = _a.status, status = _f === void 0 ? "subscribed" : _f, _g = _a.onError, onError = _g === void 0 ? console.warn : _g, _h = _a.unsafe, unsafe = _h === void 0 ? false : _h;
+    try {
+        if (!email)
+            throw new Error(CONFIG.errors.members.unknownEmail);
+        var _j = validateMailchimpSettings(settings), api_key = _j.api_key, domain = _j.domain, server = _j.server, version = _j.version;
+        var query = { skip_merge_validation: unsafe };
+        var payload = {
+            merge_fields: merges,
+            email_address: email,
+            email_type: type,
+            vip: isVIP,
+            status: status,
+            query: query,
+        };
+        var config = FetchApp.getConfig({
+            domain: domain,
+            subdomains: [server, "api"],
+            paths: [version, "lists", listId, "members"],
+            method: FetchApp.AllowedMethods.PATCH,
             payload: payload,
         });
         config.addHeader("Authorization", "Basic " + api_key);
@@ -253,12 +293,12 @@ var deleteMember = function (_a) {
         var config = FetchApp.getConfig({
             domain: domain,
             subdomains: [server, "api"],
-            method: "DELETE",
+            method: FetchApp.AllowedMethods.DELETE,
             paths: [version, "lists", listId, "members", hash],
         });
         if (permanent) {
             config.addPaths("actions", "delete-permanent");
-            config.method = "POST";
+            config.method = FetchApp.AllowedMethods.POST;
         }
         config.addHeader("Authorization", "Basic " + api_key);
         var params = config.json({
@@ -357,12 +397,10 @@ var addUser = function (_a) {
         return false;
     }
 };
-var __spreadArrays = (this && this.__spreadArrays) || function () {
-    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
-    for (var r = Array(s), k = 0, i = 0; i < il; i++)
-        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
-            r[k] = a[j];
-    return r;
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
 };
 var union = function (_a) {
     var target = _a.target, _b = _a.sources, sources = _b === void 0 ? [] : _b;
@@ -468,7 +506,7 @@ var validateMailchimpQuery = function (type, query) {
         validated.since_timestamp_opt = toISO8601Timestamp(since);
     }
     if (fields !== undefined) {
-        var _d = query.fields, _e = (_d === void 0 ? {} : _d).exclude, exclude = _e === void 0 ? [] : _e;
+        var _d = query.fields, _e = _d === void 0 ? {} : _d, _f = _e.exclude, exclude = _f === void 0 ? [] : _f;
         validated.exclude_fields = exclude.map(function (ex) { return type + "." + ex; });
     }
     return deepCopy(__assign({ source: query }, validated));
@@ -496,7 +534,7 @@ var chunkify = function (source, _a) {
     }
     var length = limits.length;
     if (!length)
-        return [__spreadArrays(source)];
+        return [__spreadArray([], source)];
     var lastSlicedElem = 0;
     limits.forEach(function (limit, i) {
         var limitPosition = lastSlicedElem + limit;
