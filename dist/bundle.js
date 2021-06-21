@@ -291,7 +291,7 @@ var updateMember = function (_a) {
         var config = FetchApp.getConfig({
             domain: domain,
             subdomains: [server, "api"],
-            paths: [version, "lists", listId, "members"],
+            paths: [version, "lists", listId, "members", toMD5lowercase(email)],
             method: FetchApp.AllowedMethods.PATCH,
             payload: payload,
         });

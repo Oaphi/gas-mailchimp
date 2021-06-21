@@ -252,7 +252,7 @@ const updateMember: Mailchimp.MailchimpApp["updateMember"] = ({
         const config = FetchApp.getConfig({
             domain,
             subdomains: [server, "api"],
-            paths: [version, "lists", listId, "members"],
+            paths: [version, "lists", listId, "members", toMD5lowercase(email)],
             method: FetchApp.AllowedMethods.PATCH,
             payload,
         });
