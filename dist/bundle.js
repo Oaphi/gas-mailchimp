@@ -194,14 +194,15 @@ var getMember = function (_a) {
         var members = getMembers({
             fields: fields,
             listId: listId,
-            email: email,
             settings: settings,
             since: since,
             status: status,
             onError: onError,
         });
-        var _f = __read(members, 1), member = _f[0];
-        return member || null;
+        return (members.find(function (_a) {
+            var email_address = _a.email_address;
+            return email === email_address;
+        }) || null);
     }
     catch (error) {
         onError(error);
