@@ -97,15 +97,15 @@ const getMember = ({
         const members = getMembers({
             fields,
             listId,
-            email,
             settings,
             since,
             status,
             onError,
         });
 
-        const [member] = members;
-        return member || null;
+        return (
+            members.find(({ email_address }) => email === email_address) || null
+        );
     } catch (error) {
         onError(error);
         return null;
