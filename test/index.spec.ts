@@ -20,7 +20,7 @@ describe("MailchimpApp", () => {
             runInContext(jsUtil, ctxt);
             runInContext(jsConf, ctxt);
 
-            Object.assign(this, { MailchimpApp: ctxt });
+            // Object.assign(this, { MailchimpApp: ctxt });
         });
 
         it.skip("", () => {
