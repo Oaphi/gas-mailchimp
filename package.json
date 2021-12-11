@@ -30,14 +30,14 @@
   },
   "homepage": "https://github.com/Oaphi/gas-mailchimp#readme",
   "devDependencies": {
-    "@types/chai": "^4.2.22",
+    "@types/chai": "^4.3.0",
     "@types/google-apps-script": "^1.0.41",
     "@types/mocha": "^9.0.0",
-    "@types/node": "^16.11.11",
+    "@types/node": "^16.11.12",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "mocha": "^9.1.3",
     "ts-node": "^10.4.0",
-    "typescript": "^4.5.2"
+    "typescript": "^4.5.3"
   }
 }
